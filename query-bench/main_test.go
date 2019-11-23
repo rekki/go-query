@@ -135,3 +135,36 @@ func BenchmarkInvertedScanAndNot(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkRoaringScanAndCompex(b *testing.B) {
+	m := ir
+
+	x := m["Lorem"]
+	y := m["corpora"]
+	z := m["qui"]
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		sum := uint32(0)
+		q := rq.NewBoolAndQuery(rq.NewTerm("", z), rq.NewBoolOrQuery(rq.NewBoolAndQuery(rq.NewTerm("", y), rq.NewTerm("", x)), rq.NewTerm("", y), rq.NewTerm("", x)))
+		iter := q.Iterator()
+		for iter.HasNext() {
+			sum += iter.Next()
+		}
+	}
+}
+
+func BenchmarkInvertedScanAndCompex(b *testing.B) {
+	m := i32
+
+	x := m["Lorem"]
+	y := m["corpora"]
+	z := m["qui"]
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		sum := int32(0)
+		q := iq.And(iq.Term("", z), iq.Or(iq.And(iq.Term("", y), iq.Term("", x)), iq.Term("", y), iq.Term("", x)))
+		for q.Next() != iq.NO_MORE {
+			sum += q.GetDocId()
+		}
+	}
+}
