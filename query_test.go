@@ -205,4 +205,18 @@ func TestModify(t *testing.T) {
 			),
 		),
 	)))
+	q := And(
+		Or(
+			Term("a", []int32{1, 2}),
+			Term("b", []int32{3, 9})),
+		AndNot(
+			Or(Term("c", []int32{4, 5}), Term("x", []int32{4, 100})),
+			Or(
+				Term("d", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+				Term("e", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+			),
+		),
+	)
+
+	eq(t, []int32{1, 2, 3, 9}, query(q))
 }

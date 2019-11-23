@@ -1,14 +1,15 @@
 package query
 
-type TermQuery struct {
+type termQuery struct {
 	docId    int32
 	cursor   int
 	postings []int32
 	term     string
 }
 
-func Term(t string, postings []int32) *TermQuery {
-	return &TermQuery{
+// Basic []int32{} that the whole interface works on top
+func Term(t string, postings []int32) *termQuery {
+	return &termQuery{
 		term:     t,
 		cursor:   -1,
 		postings: postings,
@@ -16,19 +17,19 @@ func Term(t string, postings []int32) *TermQuery {
 	}
 }
 
-func (t *TermQuery) GetDocId() int32 {
+func (t *termQuery) GetDocId() int32 {
 	return t.docId
 }
 
-func (t *TermQuery) String() string {
+func (t *termQuery) String() string {
 	return t.term
 }
 
-func (t *TermQuery) Score() float32 {
+func (t *termQuery) Score() float32 {
 	return float32(1)
 }
 
-func (t *TermQuery) advance(target int32) int32 {
+func (t *termQuery) advance(target int32) int32 {
 	if t.docId == NO_MORE || t.docId == target || target == NO_MORE {
 		t.docId = target
 		return t.docId
@@ -64,7 +65,7 @@ func (t *TermQuery) advance(target int32) int32 {
 	return t.docId
 }
 
-func (t *TermQuery) Next() int32 {
+func (t *termQuery) Next() int32 {
 	t.cursor++
 	if t.cursor >= len(t.postings) {
 		t.docId = NO_MORE

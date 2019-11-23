@@ -5,37 +5,39 @@ import (
 	"strings"
 )
 
-type AndQuery struct {
+type andQuery struct {
 	queries []Query
 	not     Query
 	docId   int32
 }
 
-func AndNot(not Query, queries ...Query) *AndQuery {
+// Creates AND NOT query
+func AndNot(not Query, queries ...Query) *andQuery {
 	return And(queries...).SetNot(not)
 }
 
-func And(queries ...Query) *AndQuery {
-	return &AndQuery{
+// Creates AND query
+func And(queries ...Query) *andQuery {
+	return &andQuery{
 		queries: queries,
 		docId:   NOT_READY,
 	}
 }
 
-func (q *AndQuery) GetDocId() int32 {
+func (q *andQuery) GetDocId() int32 {
 	return q.docId
 }
 
-func (q *AndQuery) SetNot(not Query) *AndQuery {
+func (q *andQuery) SetNot(not Query) *andQuery {
 	q.not = not
 	return q
 }
 
-func (q *AndQuery) Score() float32 {
+func (q *andQuery) Score() float32 {
 	return float32(len(q.queries))
 }
 
-func (q *AndQuery) nextAndedDoc(target int32) int32 {
+func (q *andQuery) nextAndedDoc(target int32) int32 {
 	start := 1
 	n := len(q.queries)
 AGAIN:
@@ -78,19 +80,19 @@ AGAIN:
 	}
 }
 
-func (q *AndQuery) String() string {
+func (q *andQuery) String() string {
 	out := []string{}
 	for _, v := range q.queries {
 		out = append(out, v.String())
 	}
 	s := strings.Join(out, " AND ")
 	if q.not != nil {
-		s = fmt.Sprintf("%s[-(%s)]", s, q.not.String())
+		s = fmt.Sprintf("%s -(%s)", s, q.not.String())
 	}
-	return s
+	return "{" + s + "}"
 }
 
-func (q *AndQuery) advance(target int32) int32 {
+func (q *andQuery) advance(target int32) int32 {
 	if len(q.queries) == 0 {
 		q.docId = NO_MORE
 		return NO_MORE
@@ -99,7 +101,7 @@ func (q *AndQuery) advance(target int32) int32 {
 	return q.nextAndedDoc(q.queries[0].advance(target))
 }
 
-func (q *AndQuery) Next() int32 {
+func (q *andQuery) Next() int32 {
 	if len(q.queries) == 0 {
 		q.docId = NO_MORE
 		return NO_MORE

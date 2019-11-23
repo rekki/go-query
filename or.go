@@ -2,26 +2,27 @@ package query
 
 import "strings"
 
-type OrQuery struct {
+type orQuery struct {
 	queries []Query
 	docId   int32
 }
 
-func Or(queries ...Query) *OrQuery {
-	return &OrQuery{
+// Creates OR query
+func Or(queries ...Query) *orQuery {
+	return &orQuery{
 		queries: queries,
 		docId:   NOT_READY,
 	}
 }
 
-func (q *OrQuery) AddSubQuery(sub Query) {
+func (q *orQuery) AddSubQuery(sub Query) {
 	q.queries = append(q.queries, sub)
 }
-func (q *OrQuery) GetDocId() int32 {
+func (q *orQuery) GetDocId() int32 {
 	return q.docId
 }
 
-func (q *OrQuery) Score() float32 {
+func (q *orQuery) Score() float32 {
 	score := 0
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
@@ -33,7 +34,7 @@ func (q *OrQuery) Score() float32 {
 	return float32(score)
 }
 
-func (q *OrQuery) advance(target int32) int32 {
+func (q *orQuery) advance(target int32) int32 {
 	new_doc := NO_MORE
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
@@ -50,15 +51,8 @@ func (q *OrQuery) advance(target int32) int32 {
 	q.docId = new_doc
 	return q.docId
 }
-func (q *OrQuery) String() string {
-	out := []string{}
-	for _, v := range q.queries {
-		out = append(out, v.String())
-	}
-	return strings.Join(out, " OR ")
-}
 
-func (q *OrQuery) Next() int32 {
+func (q *orQuery) Next() int32 {
 	new_doc := NO_MORE
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
@@ -74,4 +68,12 @@ func (q *OrQuery) Next() int32 {
 	}
 	q.docId = new_doc
 	return new_doc
+}
+
+func (q *orQuery) String() string {
+	out := []string{}
+	for _, v := range q.queries {
+		out = append(out, v.String())
+	}
+	return "{" + strings.Join(out, " OR ") + "}"
 }
