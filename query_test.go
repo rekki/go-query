@@ -1,7 +1,6 @@
 package query
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -194,7 +193,7 @@ func TestModify(t *testing.T) {
 		Term("x", e),
 	)))
 
-	fmt.Printf("%v", And(
+	eq(t, []int32{1, 2, 3, 9}, query(And(
 		Or(
 			Term("x", []int32{1, 2}),
 			Term("x", []int32{3, 9})),
@@ -205,5 +204,5 @@ func TestModify(t *testing.T) {
 				Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
 			),
 		),
-	))
+	)))
 }
