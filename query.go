@@ -81,5 +81,6 @@ type Query interface {
 	Next() int32
 	GetDocId() int32
 	Score() float32
+	cost() int
 	String() string
 }

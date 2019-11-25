@@ -80,6 +80,23 @@ func BenchmarkAnd1000(b *testing.B) {
 	}
 }
 
+func BenchmarkAnd1000000(b *testing.B) {
+	x := postingsList(1000000)
+	y := postingsList(1000000)
+
+	for n := 0; n < b.N; n++ {
+		sum := int32(0)
+		q := And(
+			Term("x", x),
+			Term("y", y),
+		)
+
+		for q.Next() != NO_MORE {
+			sum += q.GetDocId()
+		}
+	}
+}
+
 func TestModify(t *testing.T) {
 	a := postingsList(100)
 	b := postingsList(1000)

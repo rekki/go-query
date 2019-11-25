@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -18,10 +19,30 @@ func AndNot(not Query, queries ...Query) *andQuery {
 
 // Creates AND query
 func And(queries ...Query) *andQuery {
-	return &andQuery{
+	a := &andQuery{
 		queries: queries,
 		docId:   NOT_READY,
 	}
+	a.sortSubqueries()
+	return a
+}
+
+func (q *andQuery) AddSubQuery(sub Query) {
+	q.queries = append(q.queries, sub)
+	q.sortSubqueries()
+}
+
+func (q *andQuery) cost() int {
+	if len(q.queries) == 0 {
+		return 0
+	}
+	return q.queries[0].cost()
+}
+
+func (q *andQuery) sortSubqueries() {
+	sort.Slice(q.queries, func(i, j int) bool {
+		return q.queries[j].cost() < q.queries[i].cost()
+	})
 }
 
 func (q *andQuery) GetDocId() int32 {
@@ -107,6 +128,5 @@ func (q *andQuery) Next() int32 {
 		return NO_MORE
 	}
 
-	// XXX: pick cheapest leading query
 	return q.nextAndedDoc(q.queries[0].Next())
 }

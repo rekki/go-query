@@ -18,6 +18,19 @@ func Or(queries ...Query) *orQuery {
 func (q *orQuery) AddSubQuery(sub Query) {
 	q.queries = append(q.queries, sub)
 }
+
+func (q *orQuery) cost() int {
+	//XXX: optimistic, assume sets greatly overlap, which of course is not always true
+	max := 0
+	for _, sub := range q.queries {
+		if max < sub.cost() {
+			max = sub.cost()
+		}
+	}
+
+	return max
+}
+
 func (q *orQuery) GetDocId() int32 {
 	return q.docId
 }

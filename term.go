@@ -7,6 +7,8 @@ type termQuery struct {
 	term     string
 }
 
+const chunkSize = 128
+
 // Basic []int32{} that the whole interface works on top
 func Term(t string, postings []int32) *termQuery {
 	return &termQuery{
@@ -19,6 +21,10 @@ func Term(t string, postings []int32) *termQuery {
 
 func (t *termQuery) GetDocId() int32 {
 	return t.docId
+}
+
+func (t *termQuery) cost() int {
+	return len(t.postings) - t.cursor
 }
 
 func (t *termQuery) String() string {
@@ -64,7 +70,6 @@ func (t *termQuery) advance(target int32) int32 {
 	t.docId = t.postings[start]
 	return t.docId
 }
-
 func (t *termQuery) Next() int32 {
 	t.cursor++
 	if t.cursor >= len(t.postings) {
