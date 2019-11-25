@@ -65,16 +65,17 @@ AGAIN:
 	for {
 		// initial iteration skips queries[0], because it is used in caller
 		for i := start; i < n; i++ {
-			sub_query := q.queries[i]
-			if sub_query.GetDocId() < target {
-				sub_query.advance(target)
+			subQuery := q.queries[i]
+			subQueryDocId := subQuery.GetDocId()
+			if subQueryDocId < target {
+				subQueryDocId = subQuery.advance(target)
 			}
 
-			if sub_query.GetDocId() == target {
+			if subQueryDocId == target {
 				continue
 			}
 
-			target = q.queries[0].advance(sub_query.GetDocId())
+			target = q.queries[0].advance(subQueryDocId)
 
 			i = 0 //restart the loop from the first query
 		}
@@ -91,7 +92,6 @@ AGAIN:
 					}
 				}
 				target = newTarget
-				start = 0
 				continue AGAIN
 			}
 		}

@@ -1,19 +1,12 @@
 package query
 
 import (
-	"fmt"
 	"sort"
 )
 
 type block struct {
-	minDoc int32
 	maxDoc int32
-	minIdx int
 	maxIdx int
-}
-
-func (b block) String() string {
-	return fmt.Sprintf("{min doc: %v, max doc: %v}", b.minDoc, b.maxDoc)
 }
 
 type termQuery struct {
@@ -38,9 +31,8 @@ func Term(t string, postings []int32) *termQuery {
 		return q
 	}
 
-	chunkSize := 1024
+	chunkSize := 4096
 	q.blocks = make([]block, ((len(postings) + chunkSize - 1) / chunkSize)) // ceil
-
 	blockIndex := 0
 	for i := 0; i < len(postings); i += chunkSize {
 		minIdx := i
@@ -49,13 +41,12 @@ func Term(t string, postings []int32) *termQuery {
 			maxIdx = len(postings) - 1
 		}
 		q.blocks[blockIndex] = block{
-			minDoc: postings[minIdx],
 			maxDoc: postings[maxIdx],
-			minIdx: minIdx,
 			maxIdx: maxIdx,
 		}
 		blockIndex++
 	}
+
 	return q
 }
 
@@ -80,6 +71,17 @@ func (t *termQuery) findBlock(target int32) int32 {
 		return NO_MORE
 	}
 
+	if len(t.blocks)-t.currentBlockIndex < 16 {
+		for i := t.currentBlockIndex; i < len(t.blocks); i++ {
+			current := t.blocks[i]
+			if target <= current.maxDoc {
+				t.currentBlockIndex = i
+				t.currentBlock = current
+				return target
+			}
+		}
+		return NO_MORE
+	}
 	found := sort.Search(len(t.blocks)-t.currentBlockIndex, func(i int) bool {
 		current := t.blocks[i+t.currentBlockIndex]
 		if target <= current.maxDoc {
@@ -97,11 +99,6 @@ func (t *termQuery) findBlock(target int32) int32 {
 }
 
 func (t *termQuery) advance(target int32) int32 {
-	if t.docId == NO_MORE || t.docId == target || target == NO_MORE {
-		t.docId = target
-		return t.docId
-	}
-
 	if target > t.currentBlock.maxDoc {
 		if t.findBlock(target) == NO_MORE {
 			t.docId = NO_MORE
@@ -114,6 +111,7 @@ func (t *termQuery) advance(target int32) int32 {
 	}
 
 	t.docId = NO_MORE
+
 	for i := t.cursor; i <= t.currentBlock.maxIdx; i++ {
 		x := t.postings[i]
 		if x >= target {
@@ -122,6 +120,7 @@ func (t *termQuery) advance(target int32) int32 {
 			return x
 		}
 	}
+
 	return t.docId
 }
 

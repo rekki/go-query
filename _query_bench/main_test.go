@@ -9,6 +9,68 @@ import (
 
 var i32, ir = DoIndex("./list")
 
+func BenchmarkRoaringScanAndTwo(b *testing.B) {
+	m := ir
+
+	x := m["Lorem"]
+	y := m["corpora"]
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		sum := uint32(0)
+		q := rq.And(rq.Term("", x), rq.Term("", y))
+		iter := q.Iterator()
+		for iter.HasNext() {
+			sum += iter.Next()
+		}
+	}
+}
+
+func BenchmarkInvertedScanAndTwo(b *testing.B) {
+	m := i32
+
+	x := m["Lorem"]
+	y := m["corpora"]
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		sum := int32(0)
+		q := iq.And(iq.Term("", x), iq.Term("", y))
+		for q.Next() != iq.NO_MORE {
+			sum += q.GetDocId()
+		}
+	}
+}
+
+func BenchmarkRoaringScanAndOne(b *testing.B) {
+	m := ir
+
+	x := m["Lorem"]
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		sum := uint32(0)
+		q := rq.And(rq.Term("", x))
+		iter := q.Iterator()
+		for iter.HasNext() {
+			sum += iter.Next()
+		}
+	}
+}
+
+func BenchmarkInvertedScanAndOne(b *testing.B) {
+	m := i32
+
+	x := m["Lorem"]
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		sum := int32(0)
+		q := iq.And(iq.Term("", x))
+		for q.Next() != iq.NO_MORE {
+			sum += q.GetDocId()
+		}
+	}
+}
+
 func BenchmarkRoaringScanTerm(b *testing.B) {
 
 	x := ir["Lorem"]
@@ -76,6 +138,7 @@ func BenchmarkRoaringScanAnd(b *testing.B) {
 	x := m["Lorem"]
 	y := m["corpora"]
 	z := m["qui"]
+
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := uint32(0)

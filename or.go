@@ -66,21 +66,21 @@ func (q *orQuery) advance(target int32) int32 {
 }
 
 func (q *orQuery) Next() int32 {
-	new_doc := NO_MORE
+	newDoc := NO_MORE
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
-		sub_query := q.queries[i]
-		cur_doc := sub_query.GetDocId()
-		if cur_doc == q.docId {
-			cur_doc = sub_query.Next()
+		subQuery := q.queries[i]
+		curDoc := subQuery.GetDocId()
+		if curDoc == q.docId {
+			curDoc = subQuery.Next()
 		}
 
-		if cur_doc < new_doc {
-			new_doc = cur_doc
+		if curDoc < newDoc {
+			newDoc = curDoc
 		}
 	}
-	q.docId = new_doc
-	return new_doc
+	q.docId = newDoc
+	return newDoc
 }
 
 func (q *orQuery) String() string {
