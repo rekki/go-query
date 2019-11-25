@@ -1,7 +1,6 @@
 package query
 
 import (
-	"log"
 	"testing"
 )
 
@@ -23,7 +22,7 @@ func query(query Query) []int32 {
 
 func eq(t *testing.T, a, b []int32) {
 	if len(a) != len(b) {
-		log.Panicf("len(a) != len(b) ; len(a) = %d, len(b) = %d [%v %v]", len(a), len(b), a, b)
+		t.Logf("len(a) != len(b) ; len(a) = %d, len(b) = %d [%v %v]", len(a), len(b), a, b)
 		t.FailNow()
 	}
 
@@ -99,22 +98,6 @@ func BenchmarkAnd1000000(b *testing.B) {
 }
 
 func TestModify(t *testing.T) {
-	eq(t, []int32{6, 7, 8, 10}, query(AndNot(
-		Term("x", []int32{1, 2, 3, 9}),
-		AndNot(
-			Term("x", []int32{4, 5}),
-			Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}),
-			Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
-		),
-	)))
-
-	qq := And(
-		Term("a", []int32{1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}),
-		Term("b", []int32{1, 3, 9}),
-	)
-
-	eq(t, []int32{1, 9}, query(qq))
-
 	a := postingsList(100)
 	b := postingsList(1000)
 	c := postingsList(10000)
