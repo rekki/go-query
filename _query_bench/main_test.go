@@ -15,7 +15,7 @@ func BenchmarkRoaringScanTerm(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := uint32(0)
-		q := rq.NewTerm("", x)
+		q := rq.Term("", x)
 		iter := q.Iterator()
 		for iter.HasNext() {
 			sum += iter.Next()
@@ -46,7 +46,7 @@ func BenchmarkRoaringScanOr(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := uint32(0)
-		q := rq.NewBoolOrQuery(rq.NewTerm("", x), rq.NewTerm("", y), rq.NewTerm("", z))
+		q := rq.Or(rq.Term("", x), rq.Term("", y), rq.Term("", z))
 		iter := q.Iterator()
 		for iter.HasNext() {
 			sum += iter.Next()
@@ -79,7 +79,7 @@ func BenchmarkRoaringScanAnd(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := uint32(0)
-		q := rq.NewBoolAndQuery(rq.NewTerm("", x), rq.NewTerm("", y), rq.NewTerm("", z))
+		q := rq.And(rq.Term("", x), rq.Term("", y), rq.Term("", z))
 		iter := q.Iterator()
 		for iter.HasNext() {
 			sum += iter.Next()
@@ -112,7 +112,7 @@ func BenchmarkRoaringScanAndNot(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := uint32(0)
-		q := rq.NewBoolAndNotQuery(rq.NewTerm("", z), rq.NewTerm("", y), rq.NewTerm("", x))
+		q := rq.AndNot(rq.Term("", z), rq.Term("", y), rq.Term("", x))
 		iter := q.Iterator()
 		for iter.HasNext() {
 			sum += iter.Next()
@@ -145,7 +145,7 @@ func BenchmarkRoaringScanAndCompex(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := uint32(0)
-		q := rq.NewBoolAndQuery(rq.NewTerm("", z), rq.NewBoolOrQuery(rq.NewBoolAndQuery(rq.NewTerm("", y), rq.NewTerm("", x)), rq.NewTerm("", y), rq.NewTerm("", x)))
+		q := rq.And(rq.Term("", z), rq.Or(rq.And(rq.Term("", y), rq.Term("", x)), rq.Term("", y), rq.Term("", x)))
 		iter := q.Iterator()
 		for iter.HasNext() {
 			sum += iter.Next()
