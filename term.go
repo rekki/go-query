@@ -17,7 +17,6 @@ type termQuery struct {
 	currentBlockIndex int
 	currentBlock      block
 	term              string
-	//	idf               float64
 }
 
 // Basic []int32{} that the whole interface works on top
@@ -27,7 +26,6 @@ func Term(t string, postings []int32) *termQuery {
 		cursor:   -1,
 		postings: postings,
 		docId:    NOT_READY,
-		//		idf:      math.Log1p(float64(len(postings))),
 	}
 	if len(postings) == 0 {
 		return q
@@ -65,7 +63,6 @@ func (t *termQuery) String() string {
 }
 
 func (t *termQuery) Score() float32 {
-	//	return float32(t.idf)
 	return float32(1)
 }
 
