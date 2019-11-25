@@ -7,8 +7,6 @@ type termQuery struct {
 	term     string
 }
 
-const chunkSize = 128
-
 // Basic []int32{} that the whole interface works on top
 func Term(t string, postings []int32) *termQuery {
 	return &termQuery{
