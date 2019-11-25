@@ -35,7 +35,6 @@ func eq(t *testing.T, a, b []int32) {
 	}
 }
 
-/*
 func BenchmarkNext1000(b *testing.B) {
 	x := postingsList(1000)
 
@@ -47,7 +46,6 @@ func BenchmarkNext1000(b *testing.B) {
 		}
 	}
 }
-
 
 func BenchmarkOr1000(b *testing.B) {
 	x := postingsList(1000)
@@ -82,7 +80,7 @@ func BenchmarkAnd1000(b *testing.B) {
 		}
 	}
 }
-*/
+
 func BenchmarkAnd1000000(b *testing.B) {
 	x := postingsList(1000000)
 	y := postingsList(100000)
