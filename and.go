@@ -10,6 +10,7 @@ type andQuery struct {
 	queries []Query
 	not     Query
 	docId   int32
+	leading Query
 }
 
 // Creates AND NOT query
@@ -36,13 +37,16 @@ func (q *andQuery) cost() int {
 	if len(q.queries) == 0 {
 		return 0
 	}
-	return q.queries[0].cost()
+	return q.leading.cost()
 }
 
 func (q *andQuery) sortSubqueries() {
 	sort.Slice(q.queries, func(i, j int) bool {
-		return q.queries[j].cost() < q.queries[i].cost()
+		return q.queries[i].cost() < q.queries[j].cost()
 	})
+	if len(q.queries) > 0 {
+		q.leading = q.queries[0]
+	}
 }
 
 func (q *andQuery) GetDocId() int32 {
@@ -75,7 +79,7 @@ AGAIN:
 				continue
 			}
 
-			target = q.queries[0].advance(subQueryDocId)
+			target = q.leading.advance(subQueryDocId)
 
 			i = 0 //restart the loop from the first query
 		}
@@ -119,7 +123,7 @@ func (q *andQuery) advance(target int32) int32 {
 		return NO_MORE
 	}
 
-	return q.nextAndedDoc(q.queries[0].advance(target))
+	return q.nextAndedDoc(q.leading.advance(target))
 }
 
 func (q *andQuery) Next() int32 {
@@ -128,5 +132,5 @@ func (q *andQuery) Next() int32 {
 		return NO_MORE
 	}
 
-	return q.nextAndedDoc(q.queries[0].Next())
+	return q.nextAndedDoc(q.leading.Next())
 }

@@ -84,7 +84,7 @@ func BenchmarkAnd1000(b *testing.B) {
 
 func BenchmarkAnd1000000(b *testing.B) {
 	x := postingsList(1000000)
-	y := postingsList(100000)
+	y := postingsList(10000)
 
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
