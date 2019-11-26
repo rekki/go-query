@@ -2,14 +2,11 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/RoaringBitmap/roaring"
-	"github.com/blevesearch/bleve"
 )
 
 func unique(s []string) []string {
@@ -22,43 +19,6 @@ func unique(s []string) []string {
 		}
 	}
 	return out
-}
-
-func DoBleveIndex(fn string) bleve.Index {
-	f, err := os.Open(fn)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	mapping := bleve.NewIndexMapping()
-	index, err := bleve.NewMemOnly(mapping)
-	if err != nil {
-		panic(err)
-	}
-
-	r := bufio.NewReader(f)
-	lineNo := int32(1)
-	for {
-		data, err := r.ReadBytes('\n')
-		if err == io.EOF {
-			break
-		}
-		if len(data) == 0 {
-			continue
-		}
-
-		err = index.Index(fmt.Sprintf("%d", lineNo), map[string]interface{}{"line": string(data)})
-		if err != nil {
-			panic(err)
-		}
-
-		lineNo++
-		if lineNo%1000 == 0 {
-			log.Printf("bleve %v ...", lineNo)
-		}
-	}
-
-	return index
 }
 
 func DoIndex(fn string) (map[string][]int32, map[string]*roaring.Bitmap) {
