@@ -2,6 +2,7 @@ package query
 
 import (
 	"log"
+	"math/rand"
 	"testing"
 )
 
@@ -114,53 +115,60 @@ func TestModify(t *testing.T) {
 	)
 
 	eq(t, []int32{1, 9}, query(qq))
+	for i := 0; i < 100; i++ {
+		k := rand.Intn(65000)
+		a := postingsList(100 + k)
+		b := postingsList(1000 + k)
+		c := postingsList(10000 + k)
+		d := postingsList(100000 + k)
+		e := postingsList(1000000 + k)
 
+		eq(t, a, query(Term("x", a)))
+		eq(t, b, query(Term("x", b)))
+		eq(t, c, query(Term("x", c)))
+		eq(t, d, query(Term("x", d)))
+		eq(t, e, query(Term("x", e)))
+
+		eq(t, b, query(Or(
+			Term("x", a),
+			Term("x", b),
+		)))
+
+		eq(t, c, query(Or(
+			Term("x", a),
+			Term("x", b),
+			Term("x", c),
+		)))
+
+		eq(t, e, query(Or(
+			Term("x", a),
+			Term("x", b),
+			Term("x", c),
+			Term("x", d),
+			Term("x", e),
+		)))
+
+		eq(t, a, query(And(
+			Term("x", a),
+			Term("x", b),
+			Term("x", c),
+			Term("x", d),
+			Term("x", e),
+		)))
+
+		eq(t, a, query(And(
+			Term("x", a),
+			Term("x", b),
+			Term("x", c),
+			Term("x", d),
+			Term("x", e),
+		)))
+	}
 	a := postingsList(100)
 	b := postingsList(1000)
 	c := postingsList(10000)
 	d := postingsList(100000)
 	e := postingsList(1000000)
-
-	eq(t, a, query(Term("x", a)))
-	eq(t, b, query(Term("x", b)))
-	eq(t, c, query(Term("x", c)))
-	eq(t, d, query(Term("x", d)))
-	eq(t, e, query(Term("x", e)))
-
-	eq(t, b, query(Or(
-		Term("x", a),
-		Term("x", b),
-	)))
-
-	eq(t, c, query(Or(
-		Term("x", a),
-		Term("x", b),
-		Term("x", c),
-	)))
-
-	eq(t, e, query(Or(
-		Term("x", a),
-		Term("x", b),
-		Term("x", c),
-		Term("x", d),
-		Term("x", e),
-	)))
-
-	eq(t, a, query(And(
-		Term("x", a),
-		Term("x", b),
-		Term("x", c),
-		Term("x", d),
-		Term("x", e),
-	)))
-
-	eq(t, a, query(And(
-		Term("x", a),
-		Term("x", b),
-		Term("x", c),
-		Term("x", d),
-		Term("x", e),
-	)))
 
 	eq(t, []int32{4, 6, 7, 8, 10}, query(AndNot(
 		Term("x", []int32{1, 2, 3, 9}),
