@@ -1,9 +1,5 @@
 package query
 
-import (
-	"sort"
-)
-
 type block struct {
 	maxDoc int32
 	maxIdx int
@@ -32,8 +28,10 @@ func Term(t string, postings []int32) *termQuery {
 	}
 
 	chunkSize := 4096
+
 	q.blocks = make([]block, ((len(postings) + chunkSize - 1) / chunkSize)) // ceil
 	blockIndex := 0
+
 	for i := 0; i < len(postings); i += chunkSize {
 		minIdx := i
 		maxIdx := (minIdx + chunkSize) - 1
@@ -71,7 +69,7 @@ func (t *termQuery) findBlock(target int32) int32 {
 		return NO_MORE
 	}
 
-	if len(t.blocks)-t.currentBlockIndex < 16 {
+	if len(t.blocks)-t.currentBlockIndex < 32 {
 		for i := t.currentBlockIndex; i < len(t.blocks); i++ {
 			current := t.blocks[i]
 			if target <= current.maxDoc {
@@ -82,18 +80,23 @@ func (t *termQuery) findBlock(target int32) int32 {
 		}
 		return NO_MORE
 	}
-	found := sort.Search(len(t.blocks)-t.currentBlockIndex, func(i int) bool {
-		current := t.blocks[i+t.currentBlockIndex]
-		if target <= current.maxDoc {
-			return true
-		}
-		return false
-	}) + t.currentBlockIndex
 
-	if found < len(t.blocks) {
-		t.currentBlockIndex = found
-		t.currentBlock = t.blocks[found]
-		return target
+	start := t.currentBlockIndex
+	end := len(t.blocks)
+
+	for start < end {
+		mid := start + ((end - start) >> 1)
+		current := t.blocks[mid]
+		if target <= current.maxDoc {
+			t.currentBlockIndex = mid
+			t.currentBlock = current
+			return target
+		}
+		if current.maxDoc > target {
+			start = mid - 1
+		} else {
+			end = mid
+		}
 	}
 	return NO_MORE
 }
