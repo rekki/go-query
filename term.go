@@ -18,10 +18,11 @@ type termQuery struct {
 // Basic []int32{} that the whole interface works on top
 func Term(t string, postings []int32) *termQuery {
 	q := &termQuery{
-		term:     t,
-		cursor:   -1,
-		postings: postings,
-		docId:    NOT_READY,
+		term:         t,
+		cursor:       -1,
+		postings:     postings,
+		docId:        NOT_READY,
+		currentBlock: block{maxIdx: 0, maxDoc: NOT_READY},
 	}
 	if len(postings) == 0 {
 		return q

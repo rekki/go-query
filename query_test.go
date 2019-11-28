@@ -100,6 +100,11 @@ func BenchmarkAnd1000000(b *testing.B) {
 }
 
 func TestModify(t *testing.T) {
+	eq(t, []int32{0, 2}, query(AndNot(
+		Or(Term("x", []int32{1}), Term("x", []int32{})),
+		Term("x", []int32{0, 1, 2}),
+	)))
+
 	eq(t, []int32{6, 7, 8, 10}, query(AndNot(
 		Term("x", []int32{1, 2, 3, 9}),
 		AndNot(
