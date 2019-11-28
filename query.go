@@ -3,7 +3,7 @@
 //  data := []*Document{}
 //  index := map[string][]int32{}
 //  for docId, d := range document {
-//  	for _, token := tokenize(normalize(d.Name) {
+//  	for _, token := range tokenize(normalize(d.Name)) {
 //          index[token] = append(index[token],docId)
 //      }
 //  }
