@@ -86,16 +86,7 @@ AGAIN:
 
 		if q.not != nil && q.not.GetDocId() != NO_MORE && target != NO_MORE {
 			if q.not.advance(target) == target {
-				// the not query is matching, so we have to move on
-				// advance everything, set the new target to the highest doc, and start again
-				newTarget := target + 1
-				for i := 0; i < n; i++ {
-					current := q.queries[i].advance(newTarget)
-					if current > newTarget {
-						newTarget = current
-					}
-				}
-				target = newTarget
+				target = q.leading.advance(target + 1)
 				continue AGAIN
 			}
 		}

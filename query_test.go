@@ -28,9 +28,9 @@ func eq(t *testing.T, a, b []int32) {
 		t.FailNow()
 	}
 
-	for i, _ := range a {
+	for i := range a {
 		if a[i] != b[i] {
-			t.Log("a[i] != b[i]")
+			t.Logf("a[i] != b[i]; %v != %v", a, b)
 			t.FailNow()
 		}
 	}
@@ -100,6 +100,12 @@ func BenchmarkAnd1000000(b *testing.B) {
 }
 
 func TestModify(t *testing.T) {
+	eq(t, []int32{0, 10}, query(AndNot(
+		Or(Term("x", []int32{1})),
+		Term("x", []int32{0, 1, 7, 10}),
+		Term("x", []int32{0, 1, 6, 10}),
+	)))
+
 	eq(t, []int32{0, 2}, query(AndNot(
 		Or(Term("x", []int32{1}), Term("x", []int32{})),
 		Term("x", []int32{0, 1, 2}),
