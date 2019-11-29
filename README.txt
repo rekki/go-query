@@ -200,7 +200,7 @@ search index Example:
 
     	m.Index(toDocuments(list)...)
 
-    	// search for "(name:aMS OR name:u) AND *country:NL OR country:BG)"
+    	// search for "(name:aMS OR name:u) AND (country:NL OR country:BG)"
 
     	query := iq.And(m.Or("name", "aMS u"), m.Or("country", "NL BG"))
 
