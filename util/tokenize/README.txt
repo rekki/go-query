@@ -13,13 +13,42 @@ Example:
     	fmt.Printf("%v",tokens) // [h he hel hell hello w wo wor worl world]
     }
 
+FUNCTIONS
+
 func Tokenize(s string, tokenizers ...Tokenizer) []string
-type Custom struct{ ... }
-    func NewCustom(f func([]string) []string) *Custom
-type LeftEdge struct{ ... }
-    func NewLeftEdge(n int) *LeftEdge
-type Tokenizer interface{ ... }
-type Unique struct{}
-    func NewUnique() *Unique
+
+TYPES
+
+type Custom struct {
+	// Has unexported fields.
+}
+
+func NewCustom(f func([]string) []string) *Custom
+
+func (l *Custom) Apply(s []string) []string
+
+type LeftEdge struct {
+	// Has unexported fields.
+}
+
+func NewLeftEdge(n int) *LeftEdge
+
+func (e *LeftEdge) Apply(current []string) []string
+
+type Tokenizer interface {
+	Apply([]string) []string
+}
+
+type Unique struct {
+}
+
+func NewUnique() *Unique
+
+func (w *Unique) Apply(current []string) []string
+
 type Whitespace struct{}
-    func NewWhitespace() *Whitespace
+
+func NewWhitespace() *Whitespace
+
+func (w *Whitespace) Apply(current []string) []string
+

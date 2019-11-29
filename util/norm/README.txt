@@ -13,18 +13,59 @@ Example:
     	fmt.Printf("%s",normal) // hello world へへ l 2 l
     }
 
+VARIABLES
+
 var BASIC_NON_ALPHANUMERIC = regexp.MustCompile(`[^\pL\pN]+`)
+
+FUNCTIONS
+
 func Normalize(s string, normalizers ...Normalizer) string
-type Cleanup struct{ ... }
-    func NewCleanup(re *regexp.Regexp) *Cleanup
-type Custom struct{ ... }
-    func NewCustom(f func(string) string) *Custom
+
+TYPES
+
+type Cleanup struct {
+	// Has unexported fields.
+}
+
+func NewCleanup(re *regexp.Regexp) *Cleanup
+
+func (l *Cleanup) Apply(s string) string
+
+type Custom struct {
+	// Has unexported fields.
+}
+
+func NewCustom(f func(string) string) *Custom
+
+func (l *Custom) Apply(s string) string
+
 type LowerCase struct{}
-    func NewLowerCase() *LowerCase
-type Normalizer interface{ ... }
+
+func NewLowerCase() *LowerCase
+
+func (l *LowerCase) Apply(s string) string
+
+type Normalizer interface {
+	Apply(string) string
+}
+
 type SpaceBetweenDigits struct{}
-    func NewSpaceBetweenDigits() *SpaceBetweenDigits
-type Trim struct{ ... }
-    func NewTrim(cutset string) *Trim
+
+func NewSpaceBetweenDigits() *SpaceBetweenDigits
+
+func (l *SpaceBetweenDigits) Apply(s string) string
+
+type Trim struct {
+	// Has unexported fields.
+}
+
+func NewTrim(cutset string) *Trim
+
+func (l *Trim) Apply(s string) string
+
 type Unaccent struct{}
-    func NewUnaccent() *Unaccent
+
+func NewUnaccent() *Unaccent
+
+func (l *Unaccent) Apply(s string) string
+

@@ -36,32 +36,32 @@ func (q *orQuery) GetDocId() int32 {
 }
 
 func (q *orQuery) Score() float32 {
-	score := 0
+	score := float32(0)
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
-		sub_query := q.queries[i]
-		if sub_query.GetDocId() == q.docId {
-			score++
+		s := q.queries[i]
+		if s.GetDocId() == q.docId {
+			score += s.Score()
 		}
 	}
 	return float32(score)
 }
 
 func (q *orQuery) advance(target int32) int32 {
-	new_doc := NO_MORE
+	newDoc := NO_MORE
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
-		sub_query := q.queries[i]
-		cur_doc := sub_query.GetDocId()
-		if cur_doc < target {
-			cur_doc = sub_query.advance(target)
+		subQuery := q.queries[i]
+		curDoc := subQuery.GetDocId()
+		if curDoc < target {
+			curDoc = subQuery.advance(target)
 		}
 
-		if cur_doc < new_doc {
-			new_doc = cur_doc
+		if curDoc < newDoc {
+			newDoc = curDoc
 		}
 	}
-	q.docId = new_doc
+	q.docId = newDoc
 	return q.docId
 }
 

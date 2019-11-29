@@ -59,7 +59,13 @@ func (q *andQuery) SetNot(not Query) *andQuery {
 }
 
 func (q *andQuery) Score() float32 {
-	return float32(len(q.queries))
+	score := float32(0)
+	n := len(q.queries)
+
+	for i := 0; i < n; i++ {
+		score += q.queries[i].Score()
+	}
+	return score
 }
 
 func (q *andQuery) nextAndedDoc(target int32) int32 {
