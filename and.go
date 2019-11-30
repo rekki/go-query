@@ -11,6 +11,7 @@ type andQuery struct {
 	not     Query
 	docId   int32
 	leading Query
+	boost   float32
 }
 
 // Creates AND NOT query
@@ -23,6 +24,7 @@ func And(queries ...Query) *andQuery {
 	a := &andQuery{
 		queries: queries,
 		docId:   NOT_READY,
+		boost:   1,
 	}
 	a.sortSubqueries()
 	return a
@@ -58,6 +60,10 @@ func (q *andQuery) SetNot(not Query) *andQuery {
 	return q
 }
 
+func (q *andQuery) SetBoost(b float32) {
+	q.boost = b
+}
+
 func (q *andQuery) Score() float32 {
 	score := float32(0)
 	n := len(q.queries)
@@ -65,7 +71,7 @@ func (q *andQuery) Score() float32 {
 	for i := 0; i < n; i++ {
 		score += q.queries[i].Score()
 	}
-	return score
+	return score * q.boost
 }
 
 func (q *andQuery) nextAndedDoc(target int32) int32 {

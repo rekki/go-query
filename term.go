@@ -19,6 +19,7 @@ type termQuery struct {
 	currentBlock      block
 	term              string
 	idf               float32 // XXX: unnormalized idf
+	boost             float32
 }
 
 func computeIDF(N, d int) float32 {
@@ -31,6 +32,8 @@ func computeIDF(N, d int) float32 {
 // Basic []int32{} that the whole interface works on top
 // score is IDF (not tf*idf, just 1*idf, since we dont store the term frequency for now)
 // if you dont know totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
+// WARNING: the query *can not* be reused
+// WARNING: the query it not thread safe
 func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery {
 	q := &termQuery{
 		term:         t,
@@ -39,6 +42,7 @@ func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery {
 		docId:        NOT_READY,
 		currentBlock: block{maxIdx: 0, maxDoc: NOT_READY},
 		idf:          computeIDF(totalDocumentsInIndex, len(postings)),
+		boost:        1,
 	}
 	if len(postings) == 0 {
 		q.idf = 0
@@ -79,7 +83,7 @@ func (t *termQuery) String() string {
 }
 
 func (t *termQuery) Score() float32 {
-	return t.idf
+	return t.idf * t.boost
 }
 
 func (t *termQuery) findBlock(target int32) int32 {
@@ -153,4 +157,8 @@ func (t *termQuery) Next() int32 {
 		t.docId = t.postings[t.cursor]
 	}
 	return t.docId
+}
+
+func (t *termQuery) SetBoost(b float32) {
+	t.boost = b
 }

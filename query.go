@@ -74,6 +74,8 @@ const (
 
 // Reuse/Concurrency:
 // None of the queries are safe to be re-used.
+// WARNING: the query *can not* be reused
+// WARNING: the query it not thread safe
 //
 // Example Iteration:
 //
@@ -88,6 +90,7 @@ type Query interface {
 	Next() int32
 	GetDocId() int32
 	Score() float32
+	SetBoost(float32)
 	cost() int
 	String() string
 }

@@ -5,6 +5,7 @@ import "strings"
 type orQuery struct {
 	queries []Query
 	docId   int32
+	boost   float32
 }
 
 // Creates OR query
@@ -12,6 +13,7 @@ func Or(queries ...Query) *orQuery {
 	return &orQuery{
 		queries: queries,
 		docId:   NOT_READY,
+		boost:   1,
 	}
 }
 
@@ -44,7 +46,7 @@ func (q *orQuery) Score() float32 {
 			score += s.Score()
 		}
 	}
-	return float32(score)
+	return float32(score) * q.boost
 }
 
 func (q *orQuery) advance(target int32) int32 {
@@ -89,4 +91,8 @@ func (q *orQuery) String() string {
 		out = append(out, v.String())
 	}
 	return "{" + strings.Join(out, " OR ") + "}"
+}
+
+func (q *orQuery) SetBoost(b float32) {
+	q.boost = b
 }

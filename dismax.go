@@ -7,6 +7,7 @@ type disMaxQuery struct {
 	scores     []float32
 	docId      int32
 	tieBreaker float32
+	boost      float32
 }
 
 // Creates DisMax query, for example if the query is:
@@ -23,6 +24,7 @@ func DisMax(tieBreaker float32, queries ...Query) *disMaxQuery {
 		docId:      NOT_READY,
 		tieBreaker: tieBreaker,
 		scores:     make([]float32, len(queries)),
+		boost:      1,
 	}
 }
 
@@ -71,7 +73,7 @@ func (q *disMaxQuery) Score() float32 {
 			score += subQueryScore * q.tieBreaker
 		}
 	}
-	return score
+	return score * q.boost
 }
 
 func (q *disMaxQuery) advance(target int32) int32 {
@@ -116,4 +118,8 @@ func (q *disMaxQuery) String() string {
 		out = append(out, v.String())
 	}
 	return "{" + strings.Join(out, " DisMax ") + "}"
+}
+
+func (q *disMaxQuery) SetBoost(b float32) {
+	q.boost = b
 }

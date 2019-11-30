@@ -139,6 +139,18 @@ func TestModify(t *testing.T) {
 		DisMax(0.1, Term(10, "x", []int32{1, 2, 3, 4}), Term(10, "x", []int32{1, 2, 4}), Term(10, "x", []int32{1, 4})),
 	))
 
+	qu := Term(10, "x", []int32{1, 2, 3, 4})
+	qu.SetBoost(0)
+	eqF(t, []float32{0, 0, 0, 0}, queryScores(
+		DisMax(0.1, qu),
+	))
+
+	qu = Term(10, "x", []int32{1, 2, 3, 4})
+	qu.SetBoost(1)
+	eqF(t, []float32{1.2527629, 1.2527629, 1.2527629, 1.2527629}, queryScores(
+		DisMax(0.1, qu),
+	))
+
 	eq(t, []int32{0, 10}, query(AndNot(
 		Or(Term(10, "x", []int32{1})),
 		Term(10, "x", []int32{0, 1, 7, 10}),
