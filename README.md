@@ -134,6 +134,7 @@ func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery
 Basic []int32{} that the whole interface works on top score is IDF (not tf*idf,
 just 1*idf, since we dont store the term frequency for now) if you dont know
 totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
+WARNING: the query *can not* be reused WARNING: the query it not thread safe
 
 #### type Query
 
@@ -142,13 +143,15 @@ type Query interface {
 	Next() int32
 	GetDocId() int32
 	Score() float32
+	SetBoost(float32)
 
 	String() string
 	// contains filtered or unexported methods
 }
 ```
 
-Reuse/Concurrency: None of the queries are safe to be re-used.
+Reuse/Concurrency: None of the queries are safe to be re-used. WARNING: the
+query *can not* be reused WARNING: the query it not thread safe
 
 Example Iteration:
 
