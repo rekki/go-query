@@ -29,7 +29,7 @@ func computeIDF(N, d int) float32 {
 }
 
 // Basic []int32{} that the whole interface works on top
-// score is IDF (not tf*idf, just idf, since no stored term frequency for now)
+// score is IDF (not tf*idf, just 1*idf, since we dont store the term frequency for now)
 // if you dont know totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
 func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery {
 	q := &termQuery{
