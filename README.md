@@ -128,12 +128,12 @@ Reuse/Concurrency: None of the queries are safe to be re-used.
 
 Example Iteration:
 
-        q := Term([]int32{1,2,3})
-    	for q.Next() != query.NO_MORE {
-    		did := q.GetDocId()
-    		score := q.Score()
-    		fmt.Printf("matching %d, score: %f\n", did, score)
-    	}
+    q := Term([]int32{1,2,3})
+    for q.Next() != query.NO_MORE {
+    	did := q.GetDocId()
+    	score := q.Score()
+    	fmt.Printf("matching %d, score: %f\n", did, score)
+    }
 
 ----------------------------
 
