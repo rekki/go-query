@@ -1,5 +1,6 @@
 // Illustration of how you can use go-query to build a somewhat functional search index
 // Example:
+//
 //  package main
 //
 //  import (
@@ -34,7 +35,6 @@
 //  }
 //
 //  func main() {
-//
 //  	indexTokenizer := []tokenize.Tokenizer{
 //  		tokenize.NewWhitespace(),
 //  		tokenize.NewLeftEdge(1), // left edge ngram indexing for prefix matches
@@ -46,7 +46,11 @@
 //  		tokenize.NewUnique(),
 //  	}
 //
-//  	autocomplete := analyzer.NewAnalyzer(index.DefaultNormalizer, searchTokenizer, indexTokenizer)
+//  	autocomplete := analyzer.NewAnalyzer(
+//  		index.DefaultNormalizer,
+//  		searchTokenizer,
+//  		indexTokenizer,
+//  	)
 //  	m := index.NewMemOnlyIndex(map[string]*analyzer.Analyzer{
 //  		"name":    autocomplete,
 //  		"country": index.DefaultAnalyzer,
@@ -64,13 +68,21 @@
 //
 //  	// search for "(name:aMS OR name:u) AND (country:NL OR country:BG)"
 //
-//  	query := iq.And(m.Or("name", "aMS u"), m.Or("country", "NL BG"))
+//  	query := iq.And(
+//  		iq.Or(m.Terms("name", "aMS u")...),
+//  		iq.Or(m.Terms("country", "NL BG")...),
+//  	)
 //
 //  	m.Foreach(query, func(did int32, score float32, doc index.Document) {
 //  		city := doc.(*ExampleCity)
 //  		log.Printf("%v matching with score %f", city, score)
 //  	})
 //  }
+// will print
+//
+//  2019/11/30 18:20:23 &{Amsterdam NL} matching with score 1.961658
+//  2019/11/30 18:20:23 &{Amsterdam University NL} matching with score 3.214421
+//  2019/11/30 18:20:23 &{Amsterdam University NL} matching with score 3.214421
 package index
 
 import (
@@ -160,7 +172,6 @@ func (m *MemOnlyIndex) add(k, v string, did int32) {
 func (m *MemOnlyIndex) Terms(field string, term string) []iq.Query {
 	m.RLock()
 	defer m.RUnlock()
-
 	analyzer, ok := m.perField[field]
 	if !ok {
 		analyzer = DefaultAnalyzer
@@ -177,14 +188,14 @@ func (m *MemOnlyIndex) newTermQuery(field string, term string) iq.Query {
 	s := fmt.Sprintf("%s:%s", field, term)
 	pk, ok := m.postings[field]
 	if !ok {
-		return iq.Term(s, []int32{})
+		return iq.Term(len(m.forward), s, []int32{})
 	}
 	pv, ok := pk[term]
 	if !ok {
-		return iq.Term(s, []int32{})
+		return iq.Term(len(m.forward), s, []int32{})
 	}
 	// there are allocation in iq.Term(), so dont just defer unlock, otherwise it will be locked while term is created
-	return iq.Term(s, pv)
+	return iq.Term(len(m.forward), s, pv)
 }
 
 // Foreach matching document

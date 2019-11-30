@@ -3,6 +3,8 @@ package index
 import (
 	"log"
 	"testing"
+
+	iq "github.com/jackdoe/go-query"
 )
 
 // get full list from https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json
@@ -40,7 +42,9 @@ func TestExample(t *testing.T) {
 
 	m.Index(toDocuments(list)...)
 	n := 0
-	m.Foreach(m.Or("name", "aMS u"), func(did int32, score float32, doc Document) {
+	q := iq.Or(m.Terms("name", "aMSterdam sofia")...)
+
+	m.Foreach(q, func(did int32, score float32, doc Document) {
 		city := doc.(*ExampleCity)
 		log.Printf("%v matching with score %f", city, score)
 		n++

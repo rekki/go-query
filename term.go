@@ -1,6 +1,9 @@
 package query
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type block struct {
 	maxDoc int32
@@ -18,16 +21,24 @@ type termQuery struct {
 	idf               float32 // XXX: unnormalized idf
 }
 
+func computeIDF(N, d int) float32 {
+	// idf is log(1 + N/D)
+	// N = total documents in the index
+	// d = documents matching (len(postings))
+	return float32(math.Log1p(float64(N) / float64(d)))
+}
+
 // Basic []int32{} that the whole interface works on top
-// score is unnormalized IDF, there is no term frequency
-func Term(t string, postings []int32) *termQuery {
+// score is IDF (not tf*idf, just idf, since no stored term frequency for now)
+// if you dont know totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
+func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery {
 	q := &termQuery{
 		term:         t,
 		cursor:       -1,
 		postings:     postings,
 		docId:        NOT_READY,
 		currentBlock: block{maxIdx: 0, maxDoc: NOT_READY},
-		idf:          float32(1) / float32(math.Log1p(float64(len(postings)))),
+		idf:          computeIDF(totalDocumentsInIndex, len(postings)),
 	}
 	if len(postings) == 0 {
 		q.idf = 0
@@ -64,7 +75,7 @@ func (t *termQuery) cost() int {
 }
 
 func (t *termQuery) String() string {
-	return t.term
+	return fmt.Sprintf("%s/%.2f", t.term, t.idf)
 }
 
 func (t *termQuery) Score() float32 {

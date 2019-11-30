@@ -22,6 +22,14 @@ func query(query Query) []int32 {
 	return out
 }
 
+func queryScores(query Query) []float32 {
+	out := []float32{}
+	for query.Next() != NO_MORE {
+		out = append(out, query.Score())
+	}
+	return out
+}
+
 func eq(t *testing.T, a, b []int32) {
 	if len(a) != len(b) {
 		log.Panicf("len(a) != len(b) ; len(a) = %d, len(b) = %d [%v %v]", len(a), len(b), a, b)
@@ -36,12 +44,25 @@ func eq(t *testing.T, a, b []int32) {
 	}
 }
 
+func eqF(t *testing.T, a, b []float32) {
+	if len(a) != len(b) {
+		log.Panicf("len(a) != len(b) ; len(a) = %d, len(b) = %d [%v %v]", len(a), len(b), a, b)
+		t.FailNow()
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			log.Panicf("a[i] != b[i]; %v != %v", a, b)
+		}
+	}
+}
+
 func BenchmarkNext1000(b *testing.B) {
 	x := postingsList(1000)
 
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
-		q := Term("", x)
+		q := Term(10, "", x)
 		for q.Next() != NO_MORE {
 			sum += q.GetDocId()
 		}
@@ -55,8 +76,8 @@ func BenchmarkOr1000(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
 		q := Or(
-			Term("x", x),
-			Term("y", y),
+			Term(10, "x", x),
+			Term(10, "y", y),
 		)
 
 		for q.Next() != NO_MORE {
@@ -72,8 +93,8 @@ func BenchmarkAnd1000(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
 		q := And(
-			Term("x", x),
-			Term("y", y),
+			Term(10, "x", x),
+			Term(10, "y", y),
 		)
 
 		for q.Next() != NO_MORE {
@@ -89,8 +110,8 @@ func BenchmarkAnd1000000(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
 		q := And(
-			Term("x", x),
-			Term("y", y),
+			Term(10, "x", x),
+			Term(10, "y", y),
 		)
 
 		for q.Next() != NO_MORE {
@@ -100,29 +121,47 @@ func BenchmarkAnd1000000(b *testing.B) {
 }
 
 func TestModify(t *testing.T) {
+	eqF(t,
+		queryScores(
+			Or(Term(10, "x", []int32{1, 2, 3})),
+		),
+		queryScores(
+			DisMax(1, Term(10, "x", []int32{1, 2, 3})),
+		),
+	)
+
+	eqF(t, []float32{
+		computeIDF(10, 2) + 0.1*computeIDF(10, 3) + 0.1*computeIDF(10, 4),
+		computeIDF(10, 3) + 0.1*computeIDF(10, 4),
+		computeIDF(10, 4),
+		computeIDF(10, 2) + 0.1*computeIDF(10, 3) + 0.1*computeIDF(10, 4),
+	}, queryScores(
+		DisMax(0.1, Term(10, "x", []int32{1, 2, 3, 4}), Term(10, "x", []int32{1, 2, 4}), Term(10, "x", []int32{1, 4})),
+	))
+
 	eq(t, []int32{0, 10}, query(AndNot(
-		Or(Term("x", []int32{1})),
-		Term("x", []int32{0, 1, 7, 10}),
-		Term("x", []int32{0, 1, 6, 10}),
+		Or(Term(10, "x", []int32{1})),
+		Term(10, "x", []int32{0, 1, 7, 10}),
+		Term(10, "x", []int32{0, 1, 6, 10}),
 	)))
 
 	eq(t, []int32{0, 2}, query(AndNot(
-		Or(Term("x", []int32{1}), Term("x", []int32{})),
-		Term("x", []int32{0, 1, 2}),
+		Or(Term(10, "x", []int32{1}), Term(10, "x", []int32{})),
+		Term(10, "x", []int32{0, 1, 2}),
 	)))
 
 	eq(t, []int32{6, 7, 8, 10}, query(AndNot(
-		Term("x", []int32{1, 2, 3, 9}),
+		Term(10, "x", []int32{1, 2, 3, 9}),
 		AndNot(
-			Term("x", []int32{4, 5}),
-			Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}),
-			Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+			Term(10, "x", []int32{4, 5}),
+			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}),
+			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
 		),
 	)))
 
 	qq := And(
-		Term("a", []int32{1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}),
-		Term("b", []int32{1, 3, 9}),
+		Term(10, "a", []int32{1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}),
+		Term(10, "b", []int32{1, 3, 9}),
 	)
 
 	eq(t, []int32{1, 9}, query(qq))
@@ -134,45 +173,45 @@ func TestModify(t *testing.T) {
 		d := postingsList(100000 + k)
 		e := postingsList(1000000 + k)
 
-		eq(t, a, query(Term("x", a)))
-		eq(t, b, query(Term("x", b)))
-		eq(t, c, query(Term("x", c)))
-		eq(t, d, query(Term("x", d)))
-		eq(t, e, query(Term("x", e)))
+		eq(t, a, query(Term(10, "x", a)))
+		eq(t, b, query(Term(10, "x", b)))
+		eq(t, c, query(Term(10, "x", c)))
+		eq(t, d, query(Term(10, "x", d)))
+		eq(t, e, query(Term(10, "x", e)))
 
 		eq(t, b, query(Or(
-			Term("x", a),
-			Term("x", b),
+			Term(10, "x", a),
+			Term(10, "x", b),
 		)))
 
 		eq(t, c, query(Or(
-			Term("x", a),
-			Term("x", b),
-			Term("x", c),
+			Term(10, "x", a),
+			Term(10, "x", b),
+			Term(10, "x", c),
 		)))
 
 		eq(t, e, query(Or(
-			Term("x", a),
-			Term("x", b),
-			Term("x", c),
-			Term("x", d),
-			Term("x", e),
+			Term(10, "x", a),
+			Term(10, "x", b),
+			Term(10, "x", c),
+			Term(10, "x", d),
+			Term(10, "x", e),
 		)))
 
 		eq(t, a, query(And(
-			Term("x", a),
-			Term("x", b),
-			Term("x", c),
-			Term("x", d),
-			Term("x", e),
+			Term(10, "x", a),
+			Term(10, "x", b),
+			Term(10, "x", c),
+			Term(10, "x", d),
+			Term(10, "x", e),
 		)))
 
 		eq(t, a, query(And(
-			Term("x", a),
-			Term("x", b),
-			Term("x", c),
-			Term("x", d),
-			Term("x", e),
+			Term(10, "x", a),
+			Term(10, "x", b),
+			Term(10, "x", c),
+			Term(10, "x", d),
+			Term(10, "x", e),
 		)))
 	}
 	a := postingsList(100)
@@ -182,91 +221,91 @@ func TestModify(t *testing.T) {
 	e := postingsList(1000000)
 
 	eq(t, []int32{4, 6, 7, 8, 10}, query(AndNot(
-		Term("x", []int32{1, 2, 3, 9}),
+		Term(10, "x", []int32{1, 2, 3, 9}),
 		Or(
-			Term("x", []int32{3, 4}),
-			Term("x", []int32{1, 2, 3, 6, 7, 8, 9, 10}),
+			Term(10, "x", []int32{3, 4}),
+			Term(10, "x", []int32{1, 2, 3, 6, 7, 8, 9, 10}),
 		),
 	)))
 	eq(t, []int32{6, 7, 8, 10}, query(AndNot(
-		Term("x", []int32{1, 2, 3, 9}),
+		Term(10, "x", []int32{1, 2, 3, 9}),
 		AndNot(
-			Term("x", []int32{4, 5}),
-			Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
-			Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+			Term(10, "x", []int32{4, 5}),
+			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
 		),
 	)))
 
 	eq(t, []int32{6, 7, 8, 10}, query(AndNot(
 		Or(
-			Term("x", []int32{1, 2}),
-			Term("x", []int32{3, 9})),
+			Term(10, "x", []int32{1, 2}),
+			Term(10, "x", []int32{3, 9})),
 		AndNot(
-			Term("x", []int32{4, 5}),
-			Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
-			Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+			Term(10, "x", []int32{4, 5}),
+			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
 		),
 	)))
 
 	eq(t, []int32{}, query(AndNot(
-		Term("x", []int32{1, 2, 3, 9}),
-		Term("x", []int32{1, 2, 3, 9}),
+		Term(10, "x", []int32{1, 2, 3, 9}),
+		Term(10, "x", []int32{1, 2, 3, 9}),
 	)))
 
 	eq(t, []int32{}, query(AndNot(
-		Term("x", []int32{1, 2, 3, 9}),
+		Term(10, "x", []int32{1, 2, 3, 9}),
 	)))
 
 	eq(t, []int32{1, 2, 3, 9}, query(AndNot(
-		Term("x", []int32{}),
-		Term("x", []int32{1, 2, 3, 9}),
+		Term(10, "x", []int32{}),
+		Term(10, "x", []int32{1, 2, 3, 9}),
 	)))
 
 	eq(t, b, query(And(
 		Or(
-			Term("x", a),
-			Term("x", b),
+			Term(10, "x", a),
+			Term(10, "x", b),
 		),
-		Term("x", b),
-		Term("x", c),
-		Term("x", d),
-		Term("x", e),
+		Term(10, "x", b),
+		Term(10, "x", c),
+		Term(10, "x", d),
+		Term(10, "x", e),
 	)))
 
 	eq(t, c, query(And(
 		Or(
-			Term("x", a),
-			Term("x", b),
+			Term(10, "x", a),
+			Term(10, "x", b),
 			And(
-				Term("x", c),
-				Term("x", d),
+				Term(10, "x", c),
+				Term(10, "x", d),
 			),
 		),
-		Term("x", d),
-		Term("x", e),
+		Term(10, "x", d),
+		Term(10, "x", e),
 	)))
 
 	eq(t, []int32{1, 2, 3, 9}, query(And(
 		Or(
-			Term("x", []int32{1, 2}),
-			Term("x", []int32{3, 9})),
+			Term(10, "x", []int32{1, 2}),
+			Term(10, "x", []int32{3, 9})),
 		AndNot(
-			Term("x", []int32{4, 5}),
+			Term(10, "x", []int32{4, 5}),
 			Or(
-				Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
-				Term("x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+				Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+				Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
 			),
 		),
 	)))
 	q := And(
 		Or(
-			Term("a", []int32{1, 2}),
-			Term("b", []int32{3, 9})),
+			Term(10, "a", []int32{1, 2}),
+			Term(10, "b", []int32{3, 9})),
 		AndNot(
-			Or(Term("c", []int32{4, 5}), Term("x", []int32{4, 100})),
+			Or(Term(10, "c", []int32{4, 5}), Term(10, "x", []int32{4, 100})),
 			Or(
-				Term("d", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
-				Term("e", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+				Term(10, "d", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+				Term(10, "e", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
 			),
 		),
 	)

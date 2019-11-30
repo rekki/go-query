@@ -96,6 +96,23 @@ func AndTerm(queries ...*termQuery) *andTerm
 ```
 Creates AND query
 
+#### func  DisMax
+
+```go
+func DisMax(tieBreaker float32, queries ...Query) *disMaxQuery
+```
+Creates DisMax query, for example if the query is:
+
+    DisMax(0.5, "name:amsterdam","name:university","name:free")
+
+lets say we have an index with following idf: amsterdam: 1.3, free: 0.2,
+university: 2.1 the score is computed by:
+
+    max(score(amsterdam),score(university), score(free)) = 2.1 (university)
+    + score(free) * tiebreaker = 0.1
+    + score(amsterdam) * tiebreaker = 0.65
+    = 2.85
+
 #### func  Or
 
 ```go
@@ -106,10 +123,11 @@ Creates OR query
 #### func  Term
 
 ```go
-func Term(t string, postings []int32) *termQuery
+func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery
 ```
-Basic []int32{} that the whole interface works on top score is unnormalized IDF,
-there is no term frequency
+Basic []int32{} that the whole interface works on top score is IDF (not tf*idf,
+just idf, since no stored term frequency for now) if you dont know
+totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
 
 #### type Query
 
@@ -218,7 +236,6 @@ index Example:
     }
 
     func main() {
-
     	indexTokenizer := []tokenize.Tokenizer{
     		tokenize.NewWhitespace(),
     		tokenize.NewLeftEdge(1), // left edge ngram indexing for prefix matches
@@ -230,7 +247,11 @@ index Example:
     		tokenize.NewUnique(),
     	}
 
-    	autocomplete := analyzer.NewAnalyzer(index.DefaultNormalizer, searchTokenizer, indexTokenizer)
+    	autocomplete := analyzer.NewAnalyzer(
+    		index.DefaultNormalizer,
+    		searchTokenizer,
+    		indexTokenizer,
+    	)
     	m := index.NewMemOnlyIndex(map[string]*analyzer.Analyzer{
     		"name":    autocomplete,
     		"country": index.DefaultAnalyzer,
@@ -248,13 +269,22 @@ index Example:
 
     	// search for "(name:aMS OR name:u) AND (country:NL OR country:BG)"
 
-    	query := iq.And(m.Or("name", "aMS u"), m.Or("country", "NL BG"))
+    	query := iq.And(
+    		iq.Or(m.Terms("name", "aMS u")...),
+    		iq.Or(m.Terms("country", "NL BG")...),
+    	)
 
     	m.Foreach(query, func(did int32, score float32, doc index.Document) {
     		city := doc.(*ExampleCity)
     		log.Printf("%v matching with score %f", city, score)
     	})
     }
+
+will print
+
+    2019/11/30 18:20:23 &{Amsterdam NL} matching with score 1.961658
+    2019/11/30 18:20:23 &{Amsterdam University NL} matching with score 3.214421
+    2019/11/30 18:20:23 &{Amsterdam University NL} matching with score 3.214421
 
 ## Usage
 

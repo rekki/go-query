@@ -39,7 +39,6 @@ index Example:
     }
 
     func main() {
-
     	indexTokenizer := []tokenize.Tokenizer{
     		tokenize.NewWhitespace(),
     		tokenize.NewLeftEdge(1), // left edge ngram indexing for prefix matches
@@ -51,7 +50,11 @@ index Example:
     		tokenize.NewUnique(),
     	}
 
-    	autocomplete := analyzer.NewAnalyzer(index.DefaultNormalizer, searchTokenizer, indexTokenizer)
+    	autocomplete := analyzer.NewAnalyzer(
+    		index.DefaultNormalizer,
+    		searchTokenizer,
+    		indexTokenizer,
+    	)
     	m := index.NewMemOnlyIndex(map[string]*analyzer.Analyzer{
     		"name":    autocomplete,
     		"country": index.DefaultAnalyzer,
@@ -69,13 +72,22 @@ index Example:
 
     	// search for "(name:aMS OR name:u) AND (country:NL OR country:BG)"
 
-    	query := iq.And(m.Or("name", "aMS u"), m.Or("country", "NL BG"))
+    	query := iq.And(
+    		iq.Or(m.Terms("name", "aMS u")...),
+    		iq.Or(m.Terms("country", "NL BG")...),
+    	)
 
     	m.Foreach(query, func(did int32, score float32, doc index.Document) {
     		city := doc.(*ExampleCity)
     		log.Printf("%v matching with score %f", city, score)
     	})
     }
+
+will print
+
+    2019/11/30 18:20:23 &{Amsterdam NL} matching with score 1.961658
+    2019/11/30 18:20:23 &{Amsterdam University NL} matching with score 3.214421
+    2019/11/30 18:20:23 &{Amsterdam University NL} matching with score 3.214421
 
 ## Usage
 

@@ -31,7 +31,7 @@ func TestIsSame(t *testing.T) {
 		y := m["corpora"]
 		sum := uint64(0)
 
-		q := iq.And(iq.Term("", x), iq.Term("", y))
+		q := iq.And(iq.Term(10, "", x), iq.Term(10, "", y))
 		for q.Next() != iq.NO_MORE {
 			sum++
 		}
@@ -67,7 +67,7 @@ func BenchmarkInvertedScanAndTwo(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
-		q := iq.And(iq.Term("", x), iq.Term("", y))
+		q := iq.And(iq.Term(10, "", x), iq.Term(10, "", y))
 		for q.Next() != iq.NO_MORE {
 			sum += q.GetDocId()
 		}
@@ -97,7 +97,7 @@ func BenchmarkInvertedScanAndOne(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
-		q := iq.And(iq.Term("", x))
+		q := iq.And(iq.Term(10, "", x))
 		for q.Next() != iq.NO_MORE {
 			sum += q.GetDocId()
 		}
@@ -125,7 +125,7 @@ func BenchmarkInvertedScanTerm(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
-		q := iq.Term("", x)
+		q := iq.Term(10, "", x)
 		for q.Next() != iq.NO_MORE {
 			sum += q.GetDocId()
 		}
@@ -158,7 +158,7 @@ func BenchmarkInvertedScanOr(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
-		q := iq.Or(iq.Term("", x), iq.Term("", y), iq.Term("", z))
+		q := iq.Or(iq.Term(10, "", x), iq.Term(10, "", y), iq.Term(10, "", z))
 		for q.Next() != iq.NO_MORE {
 			sum += q.GetDocId()
 		}
@@ -192,7 +192,7 @@ func BenchmarkInvertedScanAnd(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
-		q := iq.And(iq.Term("", x), iq.Term("", y), iq.Term("", z))
+		q := iq.And(iq.Term(10, "", x), iq.Term(10, "", y), iq.Term(10, "", z))
 		for q.Next() != iq.NO_MORE {
 			sum += q.GetDocId()
 		}
@@ -225,7 +225,7 @@ func BenchmarkInvertedScanAndNot(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
-		q := iq.And(iq.Term("", z), iq.Term("", y), iq.Term("", x))
+		q := iq.And(iq.Term(10, "", z), iq.Term(10, "", y), iq.Term(10, "", x))
 		for q.Next() != iq.NO_MORE {
 			sum += q.GetDocId()
 		}
@@ -258,7 +258,7 @@ func BenchmarkInvertedScanAndCompex(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		sum := int32(0)
-		q := iq.And(iq.Term("", z), iq.Or(iq.And(iq.Term("", y), iq.Term("", x)), iq.Term("", y), iq.Term("", x)))
+		q := iq.And(iq.Term(10, "", z), iq.Or(iq.And(iq.Term(10, "", y), iq.Term(10, "", x)), iq.Term(10, "", y), iq.Term(10, "", x)))
 		for q.Next() != iq.NO_MORE {
 			sum += q.GetDocId()
 		}
