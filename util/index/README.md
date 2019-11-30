@@ -127,6 +127,23 @@ type Document interface {
 }
 ```
 
+Export this interface on the documents you want indexed
+
+Example if you want to index fields "name" and "country":
+
+    type ExampleCity struct {
+    	Name    string
+    	Country string
+    }
+
+    func (e *ExampleCity) IndexableFields() map[string]string {
+    	out := map[string]string{}
+
+    	out["name"] = e.Name
+    	out["country"] = e.Country
+
+    	return out
+    }
 
 #### type MemOnlyIndex
 
@@ -152,11 +169,14 @@ func (m *MemOnlyIndex) Foreach(query iq.Query, cb func(int32, float32, Document)
 ```
 Foreach matching document Example:
 
-    q := query.Or("name", "amster")
-    m.Foreach(query, func(did int32, score float32, doc index.Document) {
-    	city := doc.(*ExampleCity)
-    	log.Printf("%v matching with score %f", city, score)
-    })
+     	query := iq.And(
+     		iq.Or(m.Terms("name", "aMS u")...),
+     		iq.Or(m.Terms("country", "NL BG")...),
+     	)
+    	m.Foreach(query, func(did int32, score float32, doc index.Document) {
+    		city := doc.(*ExampleCity)
+    		log.Printf("%v matching with score %f", city, score)
+    	})
 
 #### func (*MemOnlyIndex) Index
 
