@@ -49,9 +49,9 @@ search index Example:
     		tokenize.NewUnique(),
     	}
 
-    	a := analyzer.NewAnalyzer(index.DefaultNormalizer, searchTokenizer, indexTokenizer)
+    	autocomplete := analyzer.NewAnalyzer(index.DefaultNormalizer, searchTokenizer, indexTokenizer)
     	m := index.NewMemOnlyIndex(map[string]*analyzer.Analyzer{
-    		"name":    a,
+    		"name":    autocomplete,
     		"country": index.DefaultAnalyzer,
     	})
 
@@ -109,13 +109,10 @@ func NewMemOnlyIndex(perField map[string]*analyzer.Analyzer) *MemOnlyIndex
     create new in-memory index with the specified perField analyzer by default
     DefaultAnalyzer is used
 
-func (m *MemOnlyIndex) And(field string, term string) iq.Query
-    Handy method that just ANDs all analyzed terms for this field
-
 func (m *MemOnlyIndex) Foreach(query iq.Query, cb func(int32, float32, Document))
     Foreach matching document Example:
 
-        query := m.Or("name", "amster")
+        q := query.Or("name", "amster")
         m.Foreach(query, func(did int32, score float32, doc index.Document) {
         	city := doc.(*ExampleCity)
         	log.Printf("%v matching with score %f", city, score)
@@ -123,9 +120,6 @@ func (m *MemOnlyIndex) Foreach(query iq.Query, cb func(int32, float32, Document)
 
 func (m *MemOnlyIndex) Index(docs ...Document)
     index a bunch of documents
-
-func (m *MemOnlyIndex) Or(field string, term string) iq.Query
-    Handy method that just ORs all analyzed terms for this field
 
 func (m *MemOnlyIndex) Terms(field string, term string) []iq.Query
     Generate array of queries from the tokenized term for this field, using the

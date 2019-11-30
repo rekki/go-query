@@ -46,9 +46,9 @@
 //  		tokenize.NewUnique(),
 //  	}
 //
-//  	a := analyzer.NewAnalyzer(index.DefaultNormalizer, searchTokenizer, indexTokenizer)
+//  	autocomplete := analyzer.NewAnalyzer(index.DefaultNormalizer, searchTokenizer, indexTokenizer)
 //  	m := index.NewMemOnlyIndex(map[string]*analyzer.Analyzer{
-//  		"name":    a,
+//  		"name":    autocomplete,
 //  		"country": index.DefaultAnalyzer,
 //  	})
 //
@@ -173,24 +173,6 @@ func (m *MemOnlyIndex) Terms(field string, term string) []iq.Query {
 	return queries
 }
 
-// Handy method that just ORs all analyzed terms for this field
-func (m *MemOnlyIndex) Or(field string, term string) iq.Query {
-	queries := m.Terms(field, term)
-	if len(queries) == 1 {
-		return queries[0]
-	}
-	return iq.Or(queries...)
-}
-
-// Handy method that just ANDs all analyzed terms for this field
-func (m *MemOnlyIndex) And(field string, term string) iq.Query {
-	queries := m.Terms(field, term)
-	if len(queries) == 1 {
-		return queries[0]
-	}
-	return iq.And(queries...)
-}
-
 func (m *MemOnlyIndex) newTermQuery(field string, term string) iq.Query {
 	s := fmt.Sprintf("%s:%s", field, term)
 	pk, ok := m.postings[field]
@@ -207,7 +189,7 @@ func (m *MemOnlyIndex) newTermQuery(field string, term string) iq.Query {
 
 // Foreach matching document
 // Example:
-//	query := m.Or("name", "amster")
+//	q := query.Or("name", "amster")
 //	m.Foreach(query, func(did int32, score float32, doc index.Document) {
 //		city := doc.(*ExampleCity)
 //		log.Printf("%v matching with score %f", city, score)

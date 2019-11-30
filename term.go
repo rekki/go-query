@@ -19,6 +19,7 @@ type termQuery struct {
 }
 
 // Basic []int32{} that the whole interface works on top
+// score is unnormalized IDF, there is no term frequency
 func Term(t string, postings []int32) *termQuery {
 	q := &termQuery{
 		term:         t,
@@ -29,6 +30,7 @@ func Term(t string, postings []int32) *termQuery {
 		idf:          float32(1) / float32(math.Log1p(float64(len(postings)))),
 	}
 	if len(postings) == 0 {
+		q.idf = 0
 		return q
 	}
 
