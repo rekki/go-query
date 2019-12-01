@@ -145,6 +145,17 @@ Example if you want to index fields "name" and "country":
     	return out
     }
 
+#### type Hit
+
+```go
+type Hit struct {
+	Score    float32  `json:"score"`
+	Id       int32    `json:"id"`
+	Document Document `json:"doc"`
+}
+```
+
+
 #### type MemOnlyIndex
 
 ```go
@@ -192,3 +203,55 @@ func (m *MemOnlyIndex) Terms(field string, term string) []iq.Query
 ```
 Generate array of queries from the tokenized term for this field, using the
 perField analyzer
+
+#### func (*MemOnlyIndex) TopN
+
+```go
+func (m *MemOnlyIndex) TopN(limit int, query iq.Query, cb func(int32, float32, Document) float32) *SearchResult
+```
+TopN documents The following texample gets top5 results and also check add 100
+to the score of cities that have NL in the score. usually the score of your
+search is some linear combination of f(a*text + b*popularity + c*context..)
+
+Example:
+
+     	query := iq.And(
+     		iq.Or(m.Terms("name", "ams university")...),
+     		iq.Or(m.Terms("country", "NL BG")...),
+     	)
+    	top := m.TopN(5, q, func(did int32, score float32, doc Document) float32 {
+    		city := doc.(*ExampleCity)
+    		if city.Country == "NL" {
+    			score += 100
+    		}
+    		n++
+    		return score
+    	})
+
+the SearchResult structure looks like
+
+    {
+      "total": 3,
+      "hits": [
+        {
+          "score": 101.09861,
+          "id": 0,
+          "doc": {
+            "Name": "Amsterdam",
+            "Country": "NL"
+          }
+        }
+        ...
+      ]
+    }
+
+If the callback is null, then the original score is used (1*idf at the moment)
+
+#### type SearchResult
+
+```go
+type SearchResult struct {
+	Total int   `json:"total"`
+	Hits  []Hit `json:"hits"`
+}
+```

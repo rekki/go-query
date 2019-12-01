@@ -49,7 +49,30 @@ func TestExample(t *testing.T) {
 		log.Printf("%v matching with score %f", city, score)
 		n++
 	})
-	if n != 2 {
+	if n != 3 {
 		t.Fatalf("expected 2 got %d", n)
 	}
+
+	n = 0
+
+	q = iq.Or(m.Terms("name", "aMSterdam sofia")...)
+	top := m.TopN(1, q, func(did int32, score float32, doc Document) float32 {
+		city := doc.(*ExampleCity)
+		if city.Country == "NL" {
+			score += 100
+		}
+		n++
+		return score
+	})
+
+	if top.Hits[0].Score < 100 {
+		t.Fatalf("expected > 100")
+	}
+	if top.Total != 3 {
+		t.Fatalf("expected 3")
+	}
+	if len(top.Hits) != 1 {
+		t.Fatalf("expected 1")
+	}
+
 }

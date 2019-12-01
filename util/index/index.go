@@ -232,3 +232,89 @@ func (m *MemOnlyIndex) Foreach(query iq.Query, cb func(int32, float32, Document)
 		cb(did, score, m.forward[did])
 	}
 }
+
+// TopN documents
+// The following texample gets top5 results and also check add 100 to the score of cities that have NL in the score.
+// usually the score of your search is some linear combination of f(a*text + b*popularity + c*context..)
+//
+// Example:
+//  	query := iq.And(
+//  		iq.Or(m.Terms("name", "ams university")...),
+//  		iq.Or(m.Terms("country", "NL BG")...),
+//  	)
+//	top := m.TopN(5, q, func(did int32, score float32, doc Document) float32 {
+//		city := doc.(*ExampleCity)
+//		if city.Country == "NL" {
+//			score += 100
+//		}
+//		n++
+//		return score
+//	})
+// the SearchResult structure looks like
+//  {
+//    "total": 3,
+//    "hits": [
+//      {
+//        "score": 101.09861,
+//        "id": 0,
+//        "doc": {
+//          "Name": "Amsterdam",
+//          "Country": "NL"
+//        }
+//      }
+//      ...
+//    ]
+//  }
+// If the callback is null, then the original score is used (1*idf at the moment)
+func (m *MemOnlyIndex) TopN(limit int, query iq.Query, cb func(int32, float32, Document) float32) *SearchResult {
+	out := &SearchResult{}
+	scored := []Hit{}
+	m.Foreach(query, func(did int32, originalScore float32, d Document) {
+		out.Total++
+		if limit == 0 {
+			return
+		}
+		score := originalScore
+		if cb != nil {
+			score = cb(did, originalScore, d)
+		}
+
+		// just keep the list sorted
+		// FIXME: use bounded priority queue
+		doInsert := false
+		if len(scored) < limit {
+			doInsert = true
+		} else if scored[len(scored)-1].Score < score {
+			doInsert = true
+		}
+
+		if doInsert {
+			hit := Hit{Score: score, Id: did, Document: d}
+			if len(scored) < limit {
+				scored = append(scored, hit)
+			}
+			for i := 0; i < len(scored); i++ {
+				if scored[i].Score < hit.Score {
+					copy(scored[i+1:], scored[i:])
+					scored[i] = hit
+					break
+				}
+			}
+		}
+	})
+
+	out.Hits = scored
+
+	return out
+}
+
+type Hit struct {
+	Score    float32  `json:"score"`
+	Id       int32    `json:"id"`
+	Document Document `json:"doc"`
+}
+
+type SearchResult struct {
+	Total int   `json:"total"`
+	Hits  []Hit `json:"hits"`
+}
