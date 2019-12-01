@@ -180,14 +180,14 @@ func (m *MemOnlyIndex) Foreach(query iq.Query, cb func(int32, float32, Document)
 ```
 Foreach matching document Example:
 
-     	query := iq.And(
-     		iq.Or(m.Terms("name", "aMS u")...),
-     		iq.Or(m.Terms("country", "NL BG")...),
-     	)
-    	m.Foreach(query, func(did int32, score float32, doc index.Document) {
-    		city := doc.(*ExampleCity)
-    		log.Printf("%v matching with score %f", city, score)
-    	})
+    query := iq.And(
+    	iq.Or(m.Terms("name", "aMS u")...),
+    	iq.Or(m.Terms("country", "NL BG")...),
+    )
+    m.Foreach(query, func(did int32, score float32, doc index.Document) {
+    	city := doc.(*ExampleCity)
+    	log.Printf("%v matching with score %f", city, score)
+    })
 
 #### func (*MemOnlyIndex) Index
 
@@ -215,18 +215,18 @@ search is some linear combination of f(a*text + b*popularity + c*context..)
 
 Example:
 
-     	query := iq.And(
-     		iq.Or(m.Terms("name", "ams university")...),
-     		iq.Or(m.Terms("country", "NL BG")...),
-     	)
-    	top := m.TopN(5, q, func(did int32, score float32, doc Document) float32 {
-    		city := doc.(*ExampleCity)
-    		if city.Country == "NL" {
-    			score += 100
-    		}
-    		n++
-    		return score
-    	})
+    query := iq.And(
+    	iq.Or(m.Terms("name", "ams university")...),
+    	iq.Or(m.Terms("country", "NL BG")...),
+    )
+    top := m.TopN(5, q, func(did int32, score float32, doc Document) float32 {
+    	city := doc.(*ExampleCity)
+    	if city.Country == "NL" {
+    		score += 100
+    	}
+    	n++
+    	return score
+    })
 
 the SearchResult structure looks like
 
