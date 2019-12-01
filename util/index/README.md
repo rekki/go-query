@@ -119,6 +119,52 @@ var DefaultSearchTokenizer = []tokenize.Tokenizer{
 }
 ```
 
+#### func  Parse
+
+```go
+func Parse(input *spec.Query, makeTermQuery func(string, string) iq.Query) (iq.Query, error)
+```
+Take spec.Query object and a makeTermQuery function and produce a parsed query
+Example:
+
+    return Parse(input, func(k, v string) iq.Query {
+    	kv := k + ":"+ v
+    	return iq.Term(0, kv, postings[kv])
+    })
+
+#### func  QueryFromBytes
+
+```go
+func QueryFromBytes(b []byte) (*spec.Query, error)
+```
+somewhat useless method (besides for testing) Example:
+
+    query, err := QueryFromBytes([]byte(`{
+      "type": "OR",
+      "queries": [
+        {
+          "field": "name",
+          "value": "sofia"
+        },
+        {
+          "field": "name",
+          "value": "amsterdam"
+        }
+      ]
+    }`))
+    if err != nil {
+    	panic(err)
+    }
+
+#### func  QueryFromJson
+
+```go
+func QueryFromJson(input interface{}) (*spec.Query, error)
+```
+simple (*slow*) helper method that takes interface{} and converst it to
+spec.Query with jsonpb in case you receive request like request = {"limit":10,
+query: ....}, pass request.query to QueryFromJson and get a query object back
+
 #### type Document
 
 ```go
@@ -195,6 +241,49 @@ Foreach matching document Example:
 func (m *MemOnlyIndex) Index(docs ...Document)
 ```
 index a bunch of documents
+
+#### func (*MemOnlyIndex) Parse
+
+```go
+func (m *MemOnlyIndex) Parse(input *spec.Query) (iq.Query, error)
+```
+Parse dsl input into an query object Example:
+
+    query, err := QueryFromBytes([]byte(`{
+      "type": "OR",
+      "queries": [
+        {
+          "field": "name",
+          "value": "sofia"
+        },
+        {
+          "field": "name",
+          "value": "amsterdam"
+        }
+      ]
+    }`))
+    if err != nil {
+    	panic(err)
+    }
+    parsedQuery, err := m.Parse(query)
+    if err != nil {
+    	panic(err)
+    }
+    top = m.TopN(1, parsedQuery, nil)
+    ...
+    {
+      "total": 3,
+      "hits": [
+        {
+          "score": 1.609438,
+          "id": 3,
+          "doc": {
+            "Name": "Sofia",
+            "Country": "BG"
+          }
+        }
+      ]
+    }
 
 #### func (*MemOnlyIndex) Terms
 

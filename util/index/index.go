@@ -92,6 +92,7 @@ import (
 	iq "github.com/jackdoe/go-query"
 	"github.com/jackdoe/go-query/util/analyzer"
 	"github.com/jackdoe/go-query/util/norm"
+	"github.com/jackdoe/go-query/util/spec"
 	"github.com/jackdoe/go-query/util/tokenize"
 )
 
@@ -181,6 +182,53 @@ func (m *MemOnlyIndex) add(k, v string, did int32) {
 		m.postings[k] = pk
 	}
 	pk[v] = append(pk[v], did)
+}
+
+// Parse dsl input into an query object
+// Example:
+//  query, err := QueryFromBytes([]byte(`{
+//    "type": "OR",
+//    "queries": [
+//      {
+//        "field": "name",
+//        "value": "sofia"
+//      },
+//      {
+//        "field": "name",
+//        "value": "amsterdam"
+//      }
+//    ]
+//  }`))
+//  if err != nil {
+//  	panic(err)
+//  }
+//  parsedQuery, err := m.Parse(query)
+//  if err != nil {
+//  	panic(err)
+//  }
+//  top = m.TopN(1, parsedQuery, nil)
+//  ...
+//  {
+//    "total": 3,
+//    "hits": [
+//      {
+//        "score": 1.609438,
+//        "id": 3,
+//        "doc": {
+//          "Name": "Sofia",
+//          "Country": "BG"
+//        }
+//      }
+//    ]
+//  }
+func (m *MemOnlyIndex) Parse(input *spec.Query) (iq.Query, error) {
+	return Parse(input, func(k, v string) iq.Query {
+		terms := m.Terms(k, v)
+		if len(terms) == 1 {
+			return terms[0]
+		}
+		return iq.Or(terms...)
+	})
 }
 
 // Generate array of queries from the tokenized term for this field,

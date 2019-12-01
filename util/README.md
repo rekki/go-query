@@ -1,5 +1,7 @@
 # util
 --
+    import "github.com/jackdoe/go-query/util"
+
 Simlpe utils to tokenize and normalize text
 
 Example:
@@ -35,3 +37,5 @@ Example:
     	fmt.Printf("%v", tokens)
     	// prints [h he hel hell hello w wo wor worl world y ye yea year 2 20 201 2019]
     }
+
+## Usage

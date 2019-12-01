@@ -1,6 +1,7 @@
 package index
 
 import (
+	"encoding/json"
 	"log"
 	"testing"
 
@@ -74,5 +75,31 @@ func TestExample(t *testing.T) {
 	if len(top.Hits) != 1 {
 		t.Fatalf("expected 1")
 	}
+	query, err := QueryFromBytes([]byte(`{"type":"OR", "queries":[{"field":"name","value":"sofia"}, {"field":"name","value":"amsterdam"}]}`))
+	if err != nil {
+		panic(err)
+	}
+	parsedQuery, _ := m.Parse(query)
+	top = m.TopN(1, parsedQuery, nil)
+	if top.Total != 3 {
+		t.Fatalf("expected 2 got %d", top.Total)
+	}
+	if len(top.Hits) != 1 {
+		t.Fatalf("expected 1")
+	}
 
+	var unparsed interface{}
+	_ = json.Unmarshal([]byte(`{"type":"OR", "queries":[{"field":"name","value":"sofia"}, {"field":"name","value":"amsterdam"}]}`), &unparsed)
+	query, err = QueryFromJson(unparsed)
+	if err != nil {
+		panic(err)
+	}
+	parsedQuery, _ = m.Parse(query)
+	top = m.TopN(1, parsedQuery, nil)
+	if top.Total != 3 {
+		t.Fatalf("expected 2 got %d", top.Total)
+	}
+	if len(top.Hits) != 1 {
+		t.Fatalf("expected 1")
+	}
 }
