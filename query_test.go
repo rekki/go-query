@@ -3,6 +3,7 @@ package query
 import (
 	"log"
 	"math/rand"
+	"strings"
 	"testing"
 )
 
@@ -156,6 +157,21 @@ func TestBoost(t *testing.T) {
 	}
 
 }
+func TestTermAdvanceNotMatch(t *testing.T) {
+	perChunkA := make([]int32, TERM_CHUNK_SIZE)
+	perChunkB := make([]int32, TERM_CHUNK_SIZE)
+	for i := 0; i < len(perChunkA); i++ {
+		perChunkA[i] = int32(1 + i)
+		perChunkA[i] = int32(TERM_CHUNK_SIZE + 10 + i)
+	}
+	perChunkA = append(perChunkA, 10000000, 10000002)
+	perChunkB = append(perChunkB, 10000000, 10000003)
+
+	eq(t, []int32{10000000}, query(And(
+		Term(10, "x", perChunkA),
+		Term(10, "x", perChunkB),
+	)))
+}
 
 func TestEmpty(t *testing.T) {
 	eq(t, []int32{}, query(And(And(), Term(10, "x", []int32{1, 2, 3}), And())))
@@ -167,6 +183,31 @@ func TestAddSubQuery(t *testing.T) {
 	eq(t, []int32{2, 3}, query(And(Term(10, "x", []int32{1, 2, 3})).AddSubQuery(Term(10, "x", []int32{2, 3}))))
 	eq(t, []int32{1, 2, 3}, query(Or(Term(10, "x", []int32{1, 2, 3})).AddSubQuery(Term(10, "x", []int32{2, 3}))))
 	eq(t, []int32{1, 2, 3}, query(DisMax(1, Term(10, "x", []int32{1, 2, 3})).AddSubQuery(Term(10, "x", []int32{2, 3}))))
+}
+
+func TestStrings(t *testing.T) {
+	s := Constant(1,
+		DisMax(1,
+			AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
+			Or(
+				AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
+				AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
+			),
+		)).String()
+
+	if !strings.Contains(s, "AND") {
+		t.Fatal("and")
+	}
+	if !strings.Contains(s, "CONST") {
+		t.Fatal("const")
+	}
+	if !strings.Contains(s, "DisMax") {
+		t.Fatal("dismax")
+	}
+
+	if !strings.Contains(s, "x") {
+		t.Fatal("term")
+	}
 }
 
 func TestModify(t *testing.T) {
@@ -265,6 +306,25 @@ func TestModify(t *testing.T) {
 			Term(10, "x", c),
 			Term(10, "x", d),
 			Term(10, "x", e),
+		)))
+
+		eq(t, a, query(And(
+			DisMax(1,
+				Term(10, "x", a),
+				Term(10, "x", b),
+				Term(10, "x", c),
+				Term(10, "x", d),
+				Term(10, "x", e)),
+			Term(10, "x", a),
+		)))
+
+		eq(t, a, query(And(
+			Or(Term(10, "x", a),
+				Term(10, "x", b),
+				Term(10, "x", c),
+				Term(10, "x", d),
+				Term(10, "x", e)),
+			Term(10, "x", a),
 		)))
 
 		eq(t, a, query(And(

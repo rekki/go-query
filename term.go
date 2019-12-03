@@ -30,6 +30,9 @@ func computeIDF(N, d int) float32 {
 	return float32(math.Log1p(float64(N) / float64(d)))
 }
 
+// splits the postings list into chunks that are binary searched and inside each chunk linearly searching for next advance()
+var TERM_CHUNK_SIZE = 4096
+
 // Basic []int32{} that the whole interface works on top
 // score is IDF (not tf*idf, just 1*idf, since we dont store the term frequency for now)
 // if you dont know totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
@@ -50,7 +53,7 @@ func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery {
 		return q
 	}
 
-	chunkSize := 4096
+	chunkSize := TERM_CHUNK_SIZE
 
 	q.blocks = make([]block, ((len(postings) + chunkSize - 1) / chunkSize)) // ceil
 	blockIndex := 0
@@ -106,10 +109,7 @@ func (t *termQuery) findBlock(target int32) int32 {
 
 	found := sort.Search(len(t.blocks)-t.currentBlockIndex, func(i int) bool {
 		current := t.blocks[i+t.currentBlockIndex]
-		if target <= current.maxDoc {
-			return true
-		}
-		return false
+		return target <= current.maxDoc
 	}) + t.currentBlockIndex
 
 	if found < len(t.blocks) {
@@ -142,7 +142,8 @@ func (t *termQuery) advance(target int32) int32 {
 			return x
 		}
 	}
-
+	// invariant, can not happen because at this point we will be within the block
+	// panic?
 	return t.docId
 }
 
