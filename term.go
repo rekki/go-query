@@ -3,6 +3,7 @@ package query
 import (
 	"fmt"
 	"math"
+	"sort"
 )
 
 type block struct {
@@ -103,22 +104,18 @@ func (t *termQuery) findBlock(target int32) int32 {
 		return NO_MORE
 	}
 
-	start := t.currentBlockIndex
-	end := len(t.blocks)
-
-	for start < end {
-		mid := start + ((end - start) >> 1)
-		current := t.blocks[mid]
+	found := sort.Search(len(t.blocks)-t.currentBlockIndex, func(i int) bool {
+		current := t.blocks[i+t.currentBlockIndex]
 		if target <= current.maxDoc {
-			t.currentBlockIndex = mid
-			t.currentBlock = current
-			return target
+			return true
 		}
-		if current.maxDoc > target {
-			start = mid - 1
-		} else {
-			end = mid
-		}
+		return false
+	}) + t.currentBlockIndex
+
+	if found < len(t.blocks) {
+		t.currentBlockIndex = found
+		t.currentBlock = t.blocks[found]
+		return target
 	}
 	return NO_MORE
 }
