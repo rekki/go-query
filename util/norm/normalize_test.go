@@ -61,6 +61,17 @@ func TestRegexp(t *testing.T) {
 	testMany(t, cases)
 }
 
+func TestNoop(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "c 1b!2&& にっぽん。。ぽ",
+			out: "c 1b!2&& にっぽん。。ぽ",
+			n:   []Normalizer{NewNoop()},
+		},
+	}
+	testMany(t, cases)
+}
+
 func TestUnaccent(t *testing.T) {
 	cases := []TestCase{
 		TestCase{
