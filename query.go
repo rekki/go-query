@@ -90,7 +90,7 @@ type Query interface {
 	Next() int32
 	GetDocId() int32
 	Score() float32
-	SetBoost(float32)
+	SetBoost(float32) Query
 	cost() int
 	String() string
 }

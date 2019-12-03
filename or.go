@@ -93,6 +93,7 @@ func (q *orQuery) String() string {
 	return "{" + strings.Join(out, " OR ") + "}"
 }
 
-func (q *orQuery) SetBoost(b float32) {
+func (q *orQuery) SetBoost(b float32) Query {
 	q.boost = b
+	return q
 }

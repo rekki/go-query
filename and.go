@@ -60,8 +60,9 @@ func (q *andQuery) SetNot(not Query) *andQuery {
 	return q
 }
 
-func (q *andQuery) SetBoost(b float32) {
+func (q *andQuery) SetBoost(b float32) Query {
 	q.boost = b
+	return q
 }
 
 func (q *andQuery) Score() float32 {

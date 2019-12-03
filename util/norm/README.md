@@ -86,6 +86,25 @@ func NewLowerCase() *LowerCase
 func (l *LowerCase) Apply(s string) string
 ```
 
+#### type Noop
+
+```go
+type Noop struct{}
+```
+
+
+#### func  NewNoop
+
+```go
+func NewNoop() *Noop
+```
+
+#### func (*Noop) Apply
+
+```go
+func (w *Noop) Apply(current string) string
+```
+
 #### type Normalizer
 
 ```go

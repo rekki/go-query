@@ -294,3 +294,12 @@ func Normalize(s string, normalizers ...Normalizer) string {
 
 	return s
 }
+
+type Noop struct{}
+
+func NewNoop() *Noop {
+	return &Noop{}
+}
+func (w *Noop) Apply(current string) string {
+	return current
+}

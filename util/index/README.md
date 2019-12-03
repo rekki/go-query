@@ -13,7 +13,6 @@ index Example:
     	iq "github.com/jackdoe/go-query"
     	"github.com/jackdoe/go-query/util/analyzer"
     	"github.com/jackdoe/go-query/util/index"
-    	"github.com/jackdoe/go-query/util/tokenize"
     )
 
     type ExampleCity struct {
@@ -25,6 +24,8 @@ index Example:
     	out := map[string]string{}
 
     	out["name"] = e.Name
+    	out["name_fuzzy"] = e.Name
+    	out["name_soundex"] = e.Name
     	out["country"] = e.Country
 
     	return out
@@ -39,31 +40,17 @@ index Example:
     }
 
     func main() {
-    	indexTokenizer := []tokenize.Tokenizer{
-    		tokenize.NewWhitespace(),
-    		tokenize.NewLeftEdge(1), // left edge ngram indexing for prefix matches
-    		tokenize.NewUnique(),
-    	}
-
-    	searchTokenizer := []tokenize.Tokenizer{
-    		tokenize.NewWhitespace(),
-    		tokenize.NewUnique(),
-    	}
-
-    	autocomplete := analyzer.NewAnalyzer(
-    		index.DefaultNormalizer,
-    		searchTokenizer,
-    		indexTokenizer,
-    	)
     	m := index.NewMemOnlyIndex(map[string]*analyzer.Analyzer{
-    		"name":    autocomplete,
-    		"country": index.DefaultAnalyzer,
+    		"name":         index.AutocompleteAnalyzer,
+    		"name_fuzzy":   index.FuzzyAnalyzer,
+    		"name_soundex": index.SoundexAnalyzer,
+    		"country":      index.IDAnalyzer,
     	})
 
     	list := []*ExampleCity{
     		&ExampleCity{Name: "Amsterdam", Country: "NL"},
     		&ExampleCity{Name: "Amsterdam University", Country: "NL"},
-    		&ExampleCity{Name: "Amsterdam University", Country: "NL"},
+    		&ExampleCity{Name: "Amsterdam University Second", Country: "NL"},
     		&ExampleCity{Name: "London", Country: "UK"},
     		&ExampleCity{Name: "Sofia", Country: "BG"},
     	}
@@ -72,11 +59,21 @@ index Example:
 
     	// search for "(name:aMS OR name:u) AND (country:NL OR country:BG)"
 
-    	query := iq.And(
-    		iq.Or(m.Terms("name", "aMS u")...),
-    		iq.Or(m.Terms("country", "NL BG")...),
+    	query := iq.Or(
+    		iq.And(
+    			iq.Or(m.Terms("name", "aMS u")...),
+    			iq.Or(m.Terms("country", "NL")...),
+    		).SetBoost(2),
+    		iq.And(
+    			iq.Or(m.Terms("name_fuzzy", "bondom u")...),
+    			iq.Or(m.Terms("country", "UK")...),
+    		).SetBoost(0.1),
+    		iq.And(
+    			iq.Or(m.Terms("name_soundex", "sfa")...),
+    			iq.Or(m.Terms("country", "BG")...),
+    		).SetBoost(0.01),
     	)
-
+    	log.Printf("query: %v", query.String())
     	m.Foreach(query, func(did int32, score float32, doc index.Document) {
     		city := doc.(*ExampleCity)
     		log.Printf("%v matching with score %f", city, score)
@@ -85,11 +82,25 @@ index Example:
 
 will print
 
-    2019/11/30 18:20:23 &{Amsterdam NL} matching with score 1.961658
-    2019/11/30 18:20:23 &{Amsterdam University NL} matching with score 3.214421
-    2019/11/30 18:20:23 &{Amsterdam University NL} matching with score 3.214421
+    2019/12/03 18:40:11 &{Amsterdam NL} matching with score 3.923317
+    2019/12/03 18:40:11 &{Amsterdam University NL} matching with score 6.428843
+    2019/12/03 18:40:11 &{Amsterdam University NL Second} matching with score 6.428843
+    2019/12/03 18:40:11 &{London UK} matching with score 0.537528
+    2019/12/03 18:40:11 &{Sofia BG} matching with score 0.035835
 
 ## Usage
+
+```go
+var AutocompleteAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, DefaultSearchTokenizer, AutocompleteIndexTokenizer)
+```
+
+```go
+var AutocompleteIndexTokenizer = []tokenize.Tokenizer{
+	tokenize.NewWhitespace(),
+	tokenize.NewLeftEdge(1),
+	tokenize.NewUnique(),
+}
+```
 
 ```go
 var DefaultAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, DefaultSearchTokenizer, DefaultIndexTokenizer)
@@ -117,6 +128,41 @@ var DefaultSearchTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
 	tokenize.NewUnique(),
 }
+```
+
+```go
+var FuzzyAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, FuzzyTokenizer, FuzzyTokenizer)
+```
+
+```go
+var FuzzyTokenizer = []tokenize.Tokenizer{
+	tokenize.NewWhitespace(),
+	tokenize.NewCharNgram(2),
+	tokenize.NewUnique(),
+	tokenize.NewSurround("$"),
+}
+```
+
+```go
+var IDAnalyzer = analyzer.NewAnalyzer([]norm.Normalizer{norm.NewNoop()}, []tokenize.Tokenizer{tokenize.NewNoop()}, []tokenize.Tokenizer{tokenize.NewNoop()})
+```
+
+```go
+var SoundexAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, SoundexTokenizer, SoundexTokenizer)
+```
+
+```go
+var SoundexTokenizer = []tokenize.Tokenizer{
+	tokenize.NewWhitespace(),
+	tokenize.NewSoundex(),
+	tokenize.NewUnique(),
+}
+```
+
+#### func  Ld
+
+```go
+func Ld(s, t string) int
 ```
 
 #### func  Parse

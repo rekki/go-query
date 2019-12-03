@@ -120,6 +120,7 @@ func (q *disMaxQuery) String() string {
 	return "{" + strings.Join(out, " DisMax ") + "}"
 }
 
-func (q *disMaxQuery) SetBoost(b float32) {
+func (q *disMaxQuery) SetBoost(b float32) Query {
 	q.boost = b
+	return q
 }

@@ -87,6 +87,15 @@ func (w *Whitespace) Apply(current []string) []string {
 	return out
 }
 
+type Noop struct{}
+
+func NewNoop() *Noop {
+	return &Noop{}
+}
+func (w *Noop) Apply(current []string) []string {
+	return current
+}
+
 type Custom struct {
 	f func([]string) []string
 }

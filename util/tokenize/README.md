@@ -17,10 +17,40 @@ Example:
 
 ## Usage
 
+```go
+const BASE_SOUNDEX = "0000"
+```
+
+#### func  EncodeSoundex
+
+```go
+func EncodeSoundex(word string) string
+```
+
 #### func  Tokenize
 
 ```go
 func Tokenize(s string, tokenizers ...Tokenizer) []string
+```
+
+#### type CharNgram
+
+```go
+type CharNgram struct {
+}
+```
+
+
+#### func  NewCharNgram
+
+```go
+func NewCharNgram(size int) *CharNgram
+```
+
+#### func (*CharNgram) Apply
+
+```go
+func (w *CharNgram) Apply(current []string) []string
 ```
 
 #### type Custom
@@ -61,6 +91,66 @@ func NewLeftEdge(n int) *LeftEdge
 
 ```go
 func (e *LeftEdge) Apply(current []string) []string
+```
+
+#### type Noop
+
+```go
+type Noop struct{}
+```
+
+
+#### func  NewNoop
+
+```go
+func NewNoop() *Noop
+```
+
+#### func (*Noop) Apply
+
+```go
+func (w *Noop) Apply(current []string) []string
+```
+
+#### type Soundex
+
+```go
+type Soundex struct {
+}
+```
+
+
+#### func  NewSoundex
+
+```go
+func NewSoundex() *Soundex
+```
+
+#### func (*Soundex) Apply
+
+```go
+func (w *Soundex) Apply(current []string) []string
+```
+
+#### type Surround
+
+```go
+type Surround struct {
+}
+```
+
+NewSurround("$").Apply([]string{"h","he","hel"}) -> []string{"$h","he","hel$"}
+
+#### func  NewSurround
+
+```go
+func NewSurround(s string) *Surround
+```
+
+#### func (*Surround) Apply
+
+```go
+func (w *Surround) Apply(current []string) []string
 ```
 
 #### type Tokenizer

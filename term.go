@@ -159,6 +159,7 @@ func (t *termQuery) Next() int32 {
 	return t.docId
 }
 
-func (t *termQuery) SetBoost(b float32) {
+func (t *termQuery) SetBoost(b float32) Query {
 	t.boost = b
+	return t
 }
