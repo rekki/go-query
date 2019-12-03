@@ -6,6 +6,11 @@ import (
 
 func TestSoundexEncode(t *testing.T) {
 	cases := map[string]string{
+		"":            "0000",
+		"A":           "A000",
+		"AB":          "A100",
+		"ABC":         "A120",
+		"ABCD":        "A123",
 		"Ashcraft":    "A226",
 		"Ashcroft":    "A226",
 		"Burroughs":   "B622",

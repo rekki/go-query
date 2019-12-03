@@ -1,7 +1,6 @@
 package tokenize
 
 import (
-	"strings"
 	"unicode"
 )
 
@@ -19,8 +18,6 @@ var soundexLookup = map[rune]rune{
 func EncodeSoundex(word string) string {
 	if len(word) == 0 {
 		return BASE_SOUNDEX
-	} else if len(word) == 1 {
-		return strings.ToUpper(word)
 	}
 
 	out := make([]rune, 4)

@@ -111,7 +111,37 @@ func TestSoundex(t *testing.T) {
 			out: []string{"H400", "H400", "A120", "W643", "W643"},
 			t:   []Tokenizer{NewWhitespace(), NewSoundex()},
 		},
+		TestCase{
+			in:  "",
+			out: []string{},
+			t:   []Tokenizer{NewWhitespace(), NewSoundex()},
+		},
 	}
+
+	testMany(t, cases)
+}
+
+func TestNoop(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "hello hallo abc world warld",
+			out: []string{"hello hallo abc world warld"},
+			t:   []Tokenizer{NewNoop()},
+		},
+	}
+
+	testMany(t, cases)
+}
+
+func TestEmpty(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "hello hallo abc world warld",
+			out: []string{},
+			t:   []Tokenizer{},
+		},
+	}
+
 	testMany(t, cases)
 }
 
