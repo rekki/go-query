@@ -104,6 +104,17 @@ func TestSurround(t *testing.T) {
 	testMany(t, cases)
 }
 
+func TestSoundex(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "hello abc world",
+			out: []string{"H400", "A120", "W643"},
+			t:   []Tokenizer{NewWhitespace(), NewSoundex()},
+		},
+	}
+	testMany(t, cases)
+}
+
 func TestLegtEdge(t *testing.T) {
 	cases := []TestCase{
 		TestCase{
