@@ -42,6 +42,68 @@ func TestUnique(t *testing.T) {
 	testMany(t, cases)
 }
 
+func TestCharNgram(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "rome",
+			out: []string{"ro", "om", "me"},
+			t:   []Tokenizer{NewCharNgram(2)},
+		},
+		TestCase{
+			in:  "rome",
+			out: []string{"$ro", "om", "me$"},
+			t:   []Tokenizer{NewCharNgram(2), NewSurround("$")},
+		},
+		TestCase{
+			in:  "rome",
+			out: []string{"rom", "ome"},
+			t:   []Tokenizer{NewCharNgram(3)},
+		},
+		TestCase{
+			in:  "ro",
+			out: []string{"ro"},
+			t:   []Tokenizer{NewCharNgram(3)},
+		},
+		TestCase{
+			in:  "",
+			out: []string{""},
+			t:   []Tokenizer{NewCharNgram(3)},
+		},
+		TestCase{
+			in:  "rome",
+			out: []string{"r", "o", "m", "e"},
+			t:   []Tokenizer{NewCharNgram(1)},
+		},
+		TestCase{
+			in:  "rome",
+			out: []string{"rome"},
+			t:   []Tokenizer{NewCharNgram(4)},
+		},
+	}
+	testMany(t, cases)
+}
+
+func TestSurround(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "hello abc world",
+			out: []string{"$hello", "abc", "world$"},
+			t:   []Tokenizer{NewWhitespace(), NewSurround("$"), NewUnique()},
+		},
+		TestCase{
+			in:  "",
+			out: []string{},
+			t:   []Tokenizer{NewWhitespace(), NewSurround("$"), NewUnique()},
+		},
+		TestCase{
+			in:  "a",
+			out: []string{"$a$"},
+			t:   []Tokenizer{NewWhitespace(), NewSurround("$"), NewUnique()},
+		},
+	}
+	testMany(t, cases)
+}
+
 func TestLegtEdge(t *testing.T) {
 	cases := []TestCase{
 		TestCase{

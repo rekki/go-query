@@ -52,6 +52,8 @@ func SpaceBetweenDigits(s string) string {
 	digitMode := false
 	var sb strings.Builder
 
+	sb.Grow(len(s) * 2)
+
 	for i, c := range s {
 		isDigit := unicode.IsDigit(c) || c == '-'
 		if i == 0 {

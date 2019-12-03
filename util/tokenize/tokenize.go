@@ -108,3 +108,45 @@ func NewUnique() *Unique {
 func (w *Unique) Apply(current []string) []string {
 	return common.Unique(current)
 }
+
+type CharNgram struct {
+	size int
+}
+
+func NewCharNgram(size int) *CharNgram {
+	return &CharNgram{size: size}
+}
+
+func (w *CharNgram) Apply(current []string) []string {
+	out := []string{}
+	for _, s := range current {
+		if len(s) < w.size {
+			out = append(out, s)
+		} else {
+			for i := 0; i <= len(s)-w.size; i++ {
+				out = append(out, s[i:i+w.size])
+			}
+		}
+	}
+	return out
+}
+
+// NewSurround("$").Apply([]string{"h","he","hel"}) -> []string{"$h","he","hel$"}
+type Surround struct {
+	s string
+}
+
+func NewSurround(s string) *Surround {
+	return &Surround{s: s}
+}
+
+func (w *Surround) Apply(current []string) []string {
+	if len(current) == 0 {
+		return current
+	}
+	out := make([]string, len(current))
+	copy(out, current)
+	out[0] = w.s + out[0]
+	out[len(out)-1] = out[len(out)-1] + w.s
+	return out
+}
