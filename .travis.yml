@@ -1,0 +1,18 @@
+language: go
+
+go:
+  - 1.8.x
+  - tip
+
+before_install:
+  - go get -t -v ./...
+
+before_script:
+  - go install github.com/golangci/golangci-lint/cmd/golangci-lint
+
+script:
+  - golangci-lint run
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
