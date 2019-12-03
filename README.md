@@ -1,3 +1,7 @@
+# github.com/jackdoe/go-query []int32 query interface
+---
+[![Build Status](https://travis-ci.org/jackdoe/go-query.svg?branch=master)](https://travis-ci.org/jackdoe/go-query) [![codecov](https://codecov.io/gh/jackdoe/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/jackdoe/go-query)
+---
 # query
 --
     import "github.com/jackdoe/go-query"
@@ -81,6 +85,12 @@ const (
 )
 ```
 
+```go
+var TERM_CHUNK_SIZE = 4096
+```
+splits the postings list into chunks that are binary searched and inside each
+chunk linearly searching for next advance()
+
 #### func  And
 
 ```go
@@ -95,12 +105,11 @@ func AndNot(not Query, queries ...Query) *andQuery
 ```
 Creates AND NOT query
 
-#### func  AndTerm
+#### func  Constant
 
 ```go
-func AndTerm(queries ...*termQuery) *andTerm
+func Constant(boost float32, q Query) *constantQuery
 ```
-Creates AND query
 
 #### func  DisMax
 
@@ -161,9 +170,7 @@ Example Iteration:
     	score := q.Score()
     	fmt.Printf("matching %d, score: %f\n", did, score)
     }
-
-----------------------------
-
+---
 # util
 --
     import "github.com/jackdoe/go-query/util"
@@ -205,9 +212,7 @@ Example:
     }
 
 ## Usage
-
-----------------------------
-
+---
 # index
 --
     import "github.com/jackdoe/go-query/util/index"
