@@ -30,9 +30,10 @@ func And(queries ...Query) *andQuery {
 	return a
 }
 
-func (q *andQuery) AddSubQuery(sub Query) {
+func (q *andQuery) AddSubQuery(sub Query) *andQuery {
 	q.queries = append(q.queries, sub)
 	q.sortSubqueries()
+	return q
 }
 
 func (q *andQuery) cost() int {

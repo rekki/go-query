@@ -120,6 +120,55 @@ func BenchmarkAnd1000000(b *testing.B) {
 	}
 }
 
+func TestBoost(t *testing.T) {
+	if queryScores(
+		Term(6, "x", []int32{1, 2, 3}).SetBoost(100),
+	)[0] < 100 {
+		t.Fatal("no boost")
+	}
+	if queryScores(
+		Or(Term(6, "x", []int32{1, 2, 3})).SetBoost(100),
+	)[0] < 100 {
+		t.Fatal("no boost")
+	}
+
+	if queryScores(
+		And(Term(6, "x", []int32{1, 2, 3})).SetBoost(100),
+	)[0] < 100 {
+		t.Fatal("no boost")
+	}
+
+	if queryScores(
+		DisMax(1, Term(6, "x", []int32{1, 2, 3})).SetBoost(100),
+	)[0] < 100 {
+		t.Fatal("no boost")
+	}
+	if queryScores(
+		Constant(0, And(Term(6, "x", []int32{1, 2, 3}), Constant(1, Term(6, "x", []int32{1, 2, 3}).SetBoost(200)))).SetBoost(2),
+	)[0] != 2 {
+		t.Fatal("no boost")
+	}
+
+	if queryScores(
+		Constant(0, Or(Term(6, "x", []int32{1, 2, 3}), Constant(1, Term(6, "x", []int32{1, 2, 3}).SetBoost(200)))).SetBoost(2),
+	)[0] != 2 {
+		t.Fatal("no boost")
+	}
+
+}
+
+func TestEmpty(t *testing.T) {
+	eq(t, []int32{}, query(And(And(), Term(10, "x", []int32{1, 2, 3}), And())))
+	eq(t, []int32{}, query(Or()))
+	eq(t, []int32{}, query(DisMax(0)))
+}
+
+func TestAddSubQuery(t *testing.T) {
+	eq(t, []int32{2, 3}, query(And(Term(10, "x", []int32{1, 2, 3})).AddSubQuery(Term(10, "x", []int32{2, 3}))))
+	eq(t, []int32{1, 2, 3}, query(Or(Term(10, "x", []int32{1, 2, 3})).AddSubQuery(Term(10, "x", []int32{2, 3}))))
+	eq(t, []int32{1, 2, 3}, query(DisMax(1, Term(10, "x", []int32{1, 2, 3})).AddSubQuery(Term(10, "x", []int32{2, 3}))))
+}
+
 func TestModify(t *testing.T) {
 	eqF(t,
 		queryScores(
@@ -148,7 +197,7 @@ func TestModify(t *testing.T) {
 	qu = Term(10, "x", []int32{1, 2, 3, 4})
 	qu.SetBoost(1)
 	eqF(t, []float32{1.2527629, 1.2527629, 1.2527629, 1.2527629}, queryScores(
-		DisMax(0.1, qu),
+		And(DisMax(0.1, qu)),
 	))
 
 	eq(t, []int32{0, 10}, query(AndNot(

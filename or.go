@@ -17,8 +17,9 @@ func Or(queries ...Query) *orQuery {
 	}
 }
 
-func (q *orQuery) AddSubQuery(sub Query) {
+func (q *orQuery) AddSubQuery(sub Query) *orQuery {
 	q.queries = append(q.queries, sub)
+	return q
 }
 
 func (q *orQuery) cost() int {
