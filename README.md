@@ -1,6 +1,6 @@
 ## github.com/jackdoe/go-query: simple []int32 query library
 
-[![Build Status](https://travis-ci.org/jackdoe/go-query.svg?branch=master)](https://travis-ci.org/jackdoe/go-query) [![codecov](https://codecov.io/gh/jackdoe/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/jackdoe/go-query)'
+[![Build Status](https://travis-ci.org/jackdoe/go-query.svg?branch=master)](https://travis-ci.org/jackdoe/go-query) [![codecov](https://codecov.io/gh/jackdoe/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/jackdoe/go-query)
 
 used to build and execute queries such as:
 
