@@ -1,0 +1,27 @@
+## github.com/jackdoe/go-query: simple []int32 query library
+
+used to build and execute queries such as:
+
+```
+n := 10 // total docs in index
+
+And(
+        Term(n, "name:hello", []int32{4, 5}),
+        Term(n, "name:world", []int32{4, 100}),
+        Or(
+                Term(n, "country:nl", []int32{20,30}),
+                Term(n, "country:uk", []int32{4,30}),
+        )
+)
+```
+
+* scoring: only idf scode (for now)
+* supported queries: or, and, and_not, dis_max, constant, term
+* util/norm: space_between_digits, lowercase, trim, cleanup, ...
+* util/tokenizer: left edge, custom, charngram, unique, soundex, ...
+* util/memory index: useful example of how to build more complex search engine with the library
+
+
+[![Build Status](https://travis-ci.org/jackdoe/go-query.svg?branch=master)](https://travis-ci.org/jackdoe/go-query) [![codecov](https://codecov.io/gh/jackdoe/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/jackdoe/go-query)'
+
+---
