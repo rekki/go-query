@@ -159,12 +159,6 @@ var SoundexTokenizer = []tokenize.Tokenizer{
 }
 ```
 
-#### func  Ld
-
-```go
-func Ld(s, t string) int
-```
-
 #### func  Parse
 
 ```go
