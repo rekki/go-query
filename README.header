@@ -1,6 +1,7 @@
 ## github.com/jackdoe/go-query: simple []int32 query library
 
-[![Build Status](https://travis-ci.org/jackdoe/go-query.svg?branch=master)](https://travis-ci.org/jackdoe/go-query) [![codecov](https://codecov.io/gh/jackdoe/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/jackdoe/go-query)
+[![Build Status](https://travis-ci.org/jackdoe/go-query.svg?branch=master)](https://travis-ci.org/jackdoe/go-query) [![codecov](https://codecov.io/gh/jackdoe/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/jackdoe/go-query) [![GoDoc](http://godoc.org/badge.png)](https://godoc.org/github.com/jackdoe/go-query)
+
 
 used to build and execute queries such as:
 
@@ -19,9 +20,9 @@ And(
 
 * scoring: only idf scode (for now)
 * supported queries: or, and, and_not, dis_max, constant, term
-* util/norm: space_between_digits, lowercase, trim, cleanup, ...
-* util/tokenizer: left edge, custom, charngram, unique, soundex, ...
-* util/memory index: useful example of how to build more complex search engine with the library
+* util/norm: space_between_digits, lowercase, trim, cleanup, ... [![GoDoc](http://godoc.org/badge.png)](https://godoc.org/github.com/jackdoe/go-query/util/norm)
+* util/tokenize: left edge, custom, charngram, unique, soundex, ... [![GoDoc](http://godoc.org/badge.png)](https://godoc.org/github.com/jackdoe/go-query/util/tokenize)
+* util/memory index: useful example of how to build more complex search engine with the library [![GoDoc](http://godoc.org/badge.png)](https://godoc.org/github.com/jackdoe/go-query/util/index)
 
 
 ---
