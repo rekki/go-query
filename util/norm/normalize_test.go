@@ -72,6 +72,33 @@ func TestNoop(t *testing.T) {
 	testMany(t, cases)
 }
 
+func TestPorter(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "dogs hello cats",
+			out: "dog hel cat",
+			n:   []Normalizer{NewPorterStemmer()},
+		},
+		TestCase{
+			in:  "dogs",
+			out: "dog",
+			n:   []Normalizer{NewPorterStemmer()},
+		},
+		TestCase{
+			in:  "dogs   ",
+			out: "dog",
+			n:   []Normalizer{NewPorterStemmer()},
+		},
+
+		TestCase{
+			in:  "",
+			out: "",
+			n:   []Normalizer{NewPorterStemmer()},
+		},
+	}
+	testMany(t, cases)
+}
+
 func TestUnaccent(t *testing.T) {
 	cases := []TestCase{
 		TestCase{
