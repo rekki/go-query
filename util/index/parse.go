@@ -7,7 +7,7 @@ import (
 
 	"github.com/gogo/protobuf/jsonpb"
 	iq "github.com/jackdoe/go-query"
-	"github.com/jackdoe/go-query/util/spec"
+	spec "github.com/jackdoe/go-query/util/go_query_dsl"
 )
 
 // somewhat useless method (besides for testing)

@@ -88,8 +88,8 @@ import (
 
 	iq "github.com/jackdoe/go-query"
 	"github.com/jackdoe/go-query/util/analyzer"
+	spec "github.com/jackdoe/go-query/util/go_query_dsl"
 	"github.com/jackdoe/go-query/util/norm"
-	"github.com/jackdoe/go-query/util/spec"
 	"github.com/jackdoe/go-query/util/tokenize"
 )
 

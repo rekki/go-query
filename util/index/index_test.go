@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	iq "github.com/jackdoe/go-query"
-	"github.com/jackdoe/go-query/util/spec"
+	spec "github.com/jackdoe/go-query/util/go_query_dsl"
 )
 
 // get full list from https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json
