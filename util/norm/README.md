@@ -114,6 +114,26 @@ type Normalizer interface {
 ```
 
 
+#### type PorterStemmer
+
+```go
+type PorterStemmer struct {
+}
+```
+
+
+#### func  NewPorterStemmer
+
+```go
+func NewPorterStemmer() *PorterStemmer
+```
+
+#### func (*PorterStemmer) Apply
+
+```go
+func (p *PorterStemmer) Apply(s string) string
+```
+
 #### type SpaceBetweenDigits
 
 ```go

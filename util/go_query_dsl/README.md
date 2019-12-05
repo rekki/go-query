@@ -1,6 +1,6 @@
-# spec
+# go_query_dsl
 --
-    import "github.com/jackdoe/go-query/util/spec"
+    import "github.com/jackdoe/go-query/util/go_query_dsl"
 
 
 ## Usage
@@ -35,7 +35,7 @@ var Query_Type_value = map[string]int32{
 ```go
 type Query struct {
 	Queries    []*Query   `protobuf:"bytes,1,rep,name=queries,proto3" json:"queries,omitempty"`
-	Type       Query_Type `protobuf:"varint,2,opt,name=type,proto3,enum=spec.Query_Type" json:"type,omitempty"`
+	Type       Query_Type `protobuf:"varint,2,opt,name=type,proto3,enum=go.query.dsl.Query_Type" json:"type,omitempty"`
 	Field      string     `protobuf:"bytes,3,opt,name=field,proto3" json:"field,omitempty"`
 	Value      string     `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
 	Not        *Query     `protobuf:"bytes,5,opt,name=not,proto3" json:"not,omitempty"`

@@ -4,7 +4,7 @@ cp README.header README.md
 godocdown github.com/jackdoe/go-query/util/tokenize > util/tokenize/README.md
 godocdown github.com/jackdoe/go-query/util/norm > util/norm/README.md
 godocdown github.com/jackdoe/go-query/util/index > util/index/README.md
-godocdown github.com/jackdoe/go-query/util/spec > util/spec/README.md
+godocdown github.com/jackdoe/go-query/util/go_query_dsl > util/go_query_dsl/README.md
 godocdown github.com/jackdoe/go-query/util > util/README.md
 godocdown github.com/jackdoe/go-query >> README.md
 
