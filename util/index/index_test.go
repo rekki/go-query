@@ -17,11 +17,11 @@ type ExampleCity struct {
 	Country string
 }
 
-func (e *ExampleCity) IndexableFields() map[string]string {
-	out := map[string]string{}
+func (e *ExampleCity) IndexableFields() map[string][]string {
+	out := map[string][]string{}
 
-	out["name"] = e.Name
-	out["country"] = e.Country
+	out["name"] = []string{e.Name}
+	out["country"] = []string{e.Country}
 
 	return out
 }

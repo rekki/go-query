@@ -15,13 +15,13 @@
 //  	Country string
 //  }
 //
-//  func (e *ExampleCity) IndexableFields() map[string]string {
-//  	out := map[string]string{}
+//  func (e *ExampleCity) IndexableFields() map[string][]string {
+//  	out := map[string][]string{}
 //
-//  	out["name"] = e.Name
-//  	out["name_fuzzy"] = e.Name
-//  	out["name_soundex"] = e.Name
-//  	out["country"] = e.Country
+//  	out["name"] = []string{e.Name}
+//  	out["name_fuzzy"] = []string{e.Name}
+//  	out["name_soundex"] = []string{e.Name}
+//  	out["country"] = []string{e.Country}
 //
 //  	return out
 //  }
@@ -110,7 +110,7 @@ import (
 //  	return out
 //  }
 type Document interface {
-	IndexableFields() map[string]string
+	IndexableFields() map[string][]string
 }
 
 var DefaultNormalizer = []norm.Normalizer{
@@ -191,9 +191,11 @@ func (m *MemOnlyIndex) Index(docs ...Document) {
 			if !ok {
 				analyzer = DefaultAnalyzer
 			}
-			tokens := analyzer.AnalyzeIndex(value)
-			for _, t := range tokens {
-				m.add(field, t, int32(did))
+			for _, v := range value {
+				tokens := analyzer.AnalyzeIndex(v)
+				for _, t := range tokens {
+					m.add(field, t, int32(did))
+				}
 			}
 		}
 	}
