@@ -20,13 +20,13 @@ index Example:
     	Country string
     }
 
-    func (e *ExampleCity) IndexableFields() map[string]string {
-    	out := map[string]string{}
+    func (e *ExampleCity) IndexableFields() map[string][]string {
+    	out := map[string][]string{}
 
-    	out["name"] = e.Name
-    	out["name_fuzzy"] = e.Name
-    	out["name_soundex"] = e.Name
-    	out["country"] = e.Country
+    	out["name"] = []string{e.Name}
+    	out["name_fuzzy"] = []string{e.Name}
+    	out["name_soundex"] = []string{e.Name}
+    	out["country"] = []string{e.Country}
 
     	return out
     }
@@ -209,7 +209,7 @@ query: ....}, pass request.query to QueryFromJson and get a query object back
 
 ```go
 type Document interface {
-	IndexableFields() map[string]string
+	IndexableFields() map[string][]string
 }
 ```
 
