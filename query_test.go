@@ -2,16 +2,30 @@ package query
 
 import (
 	"log"
+	"math"
 	"math/rand"
+	"sort"
 	"strings"
 	"testing"
 )
 
-func postingsList(n int) []int32 {
-	list := make([]int32, n)
-	for i := 0; i < n; i++ {
-		list[i] = int32(i) * 3
+type IntSlice []int32
+
+func (p IntSlice) Len() int           { return len(p) }
+func (p IntSlice) Less(i, j int) bool { return p[i] < p[j] }
+func (p IntSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+
+func postingsList(n int, into ...[]int32) []int32 {
+	list := []int32{}
+	for _, in := range into {
+		list = append(list, in...)
 	}
+
+	max := int32(math.MaxInt32) - 1
+	for i := 0; i < n; i++ {
+		list = append(list, rand.Int31n(max))
+	}
+	sort.Sort(IntSlice(list))
 	return list
 }
 
@@ -267,13 +281,15 @@ func TestModify(t *testing.T) {
 	)
 
 	eq(t, []int32{1, 9}, query(qq))
-	for i := 0; i < 100; i++ {
+	old_chunk_size := TERM_CHUNK_SIZE
+	for _, s := range []int{1, 2, 32, 64, 4096, math.MaxInt32} {
+		TERM_CHUNK_SIZE = s
 		k := rand.Intn(65000)
 		a := postingsList(100 + k)
-		b := postingsList(1000 + k)
-		c := postingsList(10000 + k)
-		d := postingsList(100000 + k)
-		e := postingsList(1000000 + k)
+		b := postingsList(1000+k, a)
+		c := postingsList(10000+k, a, b)
+		d := postingsList(100000+k, a, b, c)
+		e := postingsList(1000000+k, a, b, c, d)
 
 		eq(t, a, query(Term(10, "x", a)))
 		eq(t, b, query(Term(10, "x", b)))
@@ -334,12 +350,31 @@ func TestModify(t *testing.T) {
 			Term(10, "x", d),
 			Term(10, "x", e),
 		)))
+
+		eq(t, b, query(And(
+			Term(10, "x", b),
+			Term(10, "x", c),
+			Term(10, "x", d),
+			Term(10, "x", e),
+		)))
+
+		eq(t, c, query(And(
+			Term(10, "x", c),
+			Term(10, "x", d),
+			Term(10, "x", e),
+		)))
+
+		eq(t, d, query(And(
+			Term(10, "x", d),
+			Term(10, "x", e),
+		)))
 	}
+	TERM_CHUNK_SIZE = old_chunk_size
 	a := postingsList(100)
-	b := postingsList(1000)
-	c := postingsList(10000)
-	d := postingsList(100000)
-	e := postingsList(1000000)
+	b := postingsList(1000, a)
+	c := postingsList(10000, a, b)
+	d := postingsList(100000, a, b, c)
+	e := postingsList(1000000, a, b, c, d)
 
 	eq(t, []int32{4, 6, 7, 8, 10}, query(AndNot(
 		Term(10, "x", []int32{1, 2, 3, 9}),
