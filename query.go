@@ -24,7 +24,7 @@
 //  import (
 //  	"fmt"
 //
-//  	"github.com/jackdoe/go-query"
+//  	"github.com/rekki/go-query"
 //  )
 //
 //  func main() {

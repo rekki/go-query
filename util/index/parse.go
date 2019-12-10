@@ -6,8 +6,8 @@ import (
 	fmt "fmt"
 
 	"github.com/gogo/protobuf/jsonpb"
-	iq "github.com/jackdoe/go-query"
-	spec "github.com/jackdoe/go-query/util/go_query_dsl"
+	iq "github.com/rekki/go-query"
+	spec "github.com/rekki/go-query/util/go_query_dsl"
 )
 
 // somewhat useless method (besides for testing)

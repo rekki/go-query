@@ -28,7 +28,7 @@ And(
 ---
 # query
 --
-    import "github.com/jackdoe/go-query"
+    import "github.com/rekki/go-query"
 
 Package query provides simple query dsl on top of sorted arrays of integers.
 Usually when you have inverted index you endup having something like:
@@ -61,7 +61,7 @@ in mind it expects the []int32 slices to be _sorted_. Example:
     import (
     	"fmt"
 
-    	"github.com/jackdoe/go-query"
+    	"github.com/rekki/go-query"
     )
 
     func main() {
@@ -197,7 +197,7 @@ Example Iteration:
 ---
 # util
 --
-    import "github.com/jackdoe/go-query/util"
+    import "github.com/rekki/go-query/util"
 
 Simlpe utils to tokenize and normalize text
 
@@ -208,8 +208,8 @@ Example:
     import (
     	"fmt"
 
-    	n "github.com/jackdoe/go-query/util/norm"
-    	t "github.com/jackdoe/go-query/util/tokenize"
+    	n "github.com/rekki/go-query/util/norm"
+    	t "github.com/rekki/go-query/util/tokenize"
     )
 
     func main() {
@@ -239,7 +239,7 @@ Example:
 ---
 # index
 --
-    import "github.com/jackdoe/go-query/util/index"
+    import "github.com/rekki/go-query/util/index"
 
 Illustration of how you can use go-query to build a somewhat functional search
 index Example:
@@ -249,9 +249,9 @@ index Example:
     import (
     	"log"
 
-    	iq "github.com/jackdoe/go-query"
-    	"github.com/jackdoe/go-query/util/analyzer"
-    	"github.com/jackdoe/go-query/util/index"
+    	iq "github.com/rekki/go-query"
+    	"github.com/rekki/go-query/util/analyzer"
+    	"github.com/rekki/go-query/util/index"
     )
 
     type ExampleCity struct {

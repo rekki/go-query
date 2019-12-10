@@ -1,13 +1,13 @@
 # tokenize
 --
-    import "github.com/jackdoe/go-query/util/tokenize"
+    import "github.com/rekki/go-query/util/tokenize"
 
 Simlpe tokenizer chain
 
 Example:
 
     package main
-    import t "github.com/jackdoe/go-query/util/tokenize"
+    import t "github.com/rekki/go-query/util/tokenize"
     func main() {
     	tokenizer := []t.Tokenizer{t.NewWhitespace(), t.NewLeftEdge(1), t.NewUnique()}
     	tokens := t.Tokenize("hello world", tokenizer...)

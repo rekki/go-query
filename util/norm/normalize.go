@@ -2,7 +2,7 @@
 //
 // Example:
 //  package main
-//  import n "github.com/jackdoe/go-query/util/norm"
+//  import n "github.com/rekki/go-query/util/norm"
 //  func main() {
 //  	nor := []n.Normalizer{n.NewUnaccent(), n.NewLowerCase(), n.NewSpaceBetweenDigits(), n.NewCleanup(n.BASIC_NON_ALPHANUMERIC),n.NewTrim(" ")}
 //  	normal := n.Normalize("Hęllö wÖrld. べぺ Ł2ł  ", nor...)
@@ -17,7 +17,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/jackdoe/go-query/util/common"
+	"github.com/rekki/go-query/util/common"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"

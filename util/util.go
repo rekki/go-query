@@ -6,8 +6,8 @@
 //  import (
 //  	"fmt"
 //
-//  	n "github.com/jackdoe/go-query/util/norm"
-//  	t "github.com/jackdoe/go-query/util/tokenize"
+//  	n "github.com/rekki/go-query/util/norm"
+//  	t "github.com/rekki/go-query/util/tokenize"
 //  )
 //
 //  func main() {

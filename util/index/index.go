@@ -5,9 +5,9 @@
 //  import (
 //  	"log"
 //
-//  	iq "github.com/jackdoe/go-query"
-//  	"github.com/jackdoe/go-query/util/analyzer"
-//  	"github.com/jackdoe/go-query/util/index"
+//  	iq "github.com/rekki/go-query"
+//  	"github.com/rekki/go-query/util/analyzer"
+//  	"github.com/rekki/go-query/util/index"
 //  )
 //
 //  type ExampleCity struct {
@@ -86,11 +86,11 @@ import (
 	"fmt"
 	"sync"
 
-	iq "github.com/jackdoe/go-query"
-	"github.com/jackdoe/go-query/util/analyzer"
-	spec "github.com/jackdoe/go-query/util/go_query_dsl"
-	"github.com/jackdoe/go-query/util/norm"
-	"github.com/jackdoe/go-query/util/tokenize"
+	iq "github.com/rekki/go-query"
+	"github.com/rekki/go-query/util/analyzer"
+	spec "github.com/rekki/go-query/util/go_query_dsl"
+	"github.com/rekki/go-query/util/norm"
+	"github.com/rekki/go-query/util/tokenize"
 )
 
 // Export this interface on the documents you want indexed

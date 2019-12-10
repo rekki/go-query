@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
-	iq "github.com/jackdoe/go-query"
 	rq "github.com/jackdoe/roaring-query"
+	iq "github.com/rekki/go-query"
 )
 
 var i32, ir = DoIndex("./list")

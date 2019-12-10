@@ -1,6 +1,6 @@
 # index
 --
-    import "github.com/jackdoe/go-query/util/index"
+    import "github.com/rekki/go-query/util/index"
 
 Illustration of how you can use go-query to build a somewhat functional search
 index Example:
@@ -10,9 +10,9 @@ index Example:
     import (
     	"log"
 
-    	iq "github.com/jackdoe/go-query"
-    	"github.com/jackdoe/go-query/util/analyzer"
-    	"github.com/jackdoe/go-query/util/index"
+    	iq "github.com/rekki/go-query"
+    	"github.com/rekki/go-query/util/analyzer"
+    	"github.com/rekki/go-query/util/index"
     )
 
     type ExampleCity struct {

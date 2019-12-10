@@ -1,8 +1,8 @@
 package analyzer
 
 import (
-	"github.com/jackdoe/go-query/util/norm"
-	"github.com/jackdoe/go-query/util/tokenize"
+	"github.com/rekki/go-query/util/norm"
+	"github.com/rekki/go-query/util/tokenize"
 )
 
 type Analyzer struct {

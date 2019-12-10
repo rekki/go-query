@@ -1,6 +1,6 @@
 # go_query_dsl
 --
-    import "github.com/jackdoe/go-query/util/go_query_dsl"
+    import "github.com/rekki/go-query/util/go_query_dsl"
 
 
 ## Usage
