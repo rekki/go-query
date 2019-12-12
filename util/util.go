@@ -14,7 +14,6 @@
 //  	tokenizer := []t.Tokenizer{
 //  		t.NewWhitespace(),
 //  		t.NewLeftEdge(1),
-//  		t.NewUnique(),
 //  	}
 //  	normalizer := []n.Normalizer{
 //  		n.NewUnaccent(),

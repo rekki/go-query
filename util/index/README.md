@@ -98,7 +98,6 @@ var AutocompleteAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, DefaultSearch
 var AutocompleteIndexTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
 	tokenize.NewLeftEdge(1),
-	tokenize.NewUnique(),
 }
 ```
 
@@ -109,7 +108,6 @@ var DefaultAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, DefaultSearchToken
 ```go
 var DefaultIndexTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
-	tokenize.NewUnique(),
 }
 ```
 
@@ -126,7 +124,6 @@ var DefaultNormalizer = []norm.Normalizer{
 ```go
 var DefaultSearchTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
-	tokenize.NewUnique(),
 }
 ```
 
@@ -155,7 +152,6 @@ var SoundexAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, SoundexTokenizer, 
 var SoundexTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
 	tokenize.NewSoundex(),
-	tokenize.NewUnique(),
 }
 ```
 
