@@ -150,17 +150,33 @@ func TestLegtEdge(t *testing.T) {
 		TestCase{
 			in:  "hello",
 			out: []string{"he", "hel", "hell", "hello"},
-			t:   []Tokenizer{NewLeftEdge(2)},
+			t:   []Tokenizer{NewLeftEdge(2, 0)},
 		},
 		TestCase{
 			in:  "hello",
 			out: []string{"hello"},
-			t:   []Tokenizer{NewLeftEdge(20)},
+			t:   []Tokenizer{NewLeftEdge(20, 0)},
 		},
 		TestCase{
 			in:  "hello",
 			out: []string{"h", "he", "hel", "hell", "hello"},
-			t:   []Tokenizer{NewLeftEdge(1)},
+			t:   []Tokenizer{NewLeftEdge(1, 0)},
+		},
+		TestCase{
+			in:  "hello",
+			out: []string{"h", "he"},
+			t:   []Tokenizer{NewLeftEdge(1, 2)},
+		},
+		TestCase{
+			in:  "hello",
+			out: []string{"he", "hel"},
+			t:   []Tokenizer{NewLeftEdge(2, 3)},
+		},
+
+		TestCase{
+			in:  "hello",
+			out: []string{},
+			t:   []Tokenizer{NewLeftEdge(2, 1)},
 		},
 	}
 	testMany(t, cases)
@@ -206,7 +222,7 @@ func TestComplex(t *testing.T) {
 		TestCase{
 			in:  "hello world hellz",
 			out: []string{"h", "he", "hel", "hello", "w", "wo", "wor", "world", "hellz"},
-			t: []Tokenizer{NewWhitespace(), NewLeftEdge(1), NewUnique(), NewCustom(func(c []string) []string {
+			t: []Tokenizer{NewWhitespace(), NewLeftEdge(1, 0), NewUnique(), NewCustom(func(c []string) []string {
 				out := []string{}
 				for _, v := range c {
 					if len(v) != 4 {
