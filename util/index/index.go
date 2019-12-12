@@ -147,7 +147,7 @@ var FuzzyTokenizer = []tokenize.Tokenizer{
 
 var AutocompleteIndexTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
-	tokenize.NewLeftEdge(1, 0),
+	tokenize.NewLeftEdge(1),
 }
 
 var SoundexAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, SoundexTokenizer, SoundexTokenizer)

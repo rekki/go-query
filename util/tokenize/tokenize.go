@@ -36,12 +36,11 @@ func Tokenize(s string, tokenizers ...Tokenizer) []string {
 }
 
 type LeftEdge struct {
-	n   int
-	max int
+	n int
 }
 
-func NewLeftEdge(n int, max int) *LeftEdge {
-	return &LeftEdge{n: n - 1, max: max}
+func NewLeftEdge(n int) *LeftEdge {
+	return &LeftEdge{n: n - 1}
 }
 func (e *LeftEdge) Apply(current []string) []string {
 	out := []string{}
@@ -49,11 +48,7 @@ func (e *LeftEdge) Apply(current []string) []string {
 		if len(s) < e.n {
 			out = append(out, s)
 		} else {
-			end := len(s)
-			if end > e.max && e.max > 0 {
-				end = e.max
-			}
-			for i := e.n; i < end; i++ {
+			for i := e.n; i < len(s); i++ {
 				out = append(out, s[:i+1])
 			}
 		}
