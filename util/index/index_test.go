@@ -15,12 +15,14 @@ import (
 type ExampleCity struct {
 	Name    string
 	Country string
+	Names   []string
 }
 
 func (e *ExampleCity) IndexableFields() map[string][]string {
 	out := map[string][]string{}
 
 	out["name"] = []string{e.Name}
+	out["names"] = e.Names
 	out["country"] = []string{e.Country}
 
 	return out
@@ -32,6 +34,27 @@ func toDocuments(in []*ExampleCity) []Document {
 		out[i] = Document(d)
 	}
 	return out
+}
+
+func TestUnique(t *testing.T) {
+	m := NewMemOnlyIndex(nil)
+	list := []*ExampleCity{
+		&ExampleCity{Names: []string{"Amsterdam", "Amsterdam"}, Country: "NL"},
+		&ExampleCity{Names: []string{"Sofia", "Sofia"}, Country: "NL"},
+	}
+
+	m.Index(toDocuments(list)...)
+	n := 0
+	q := iq.Or(m.Terms("names", "sofia")...)
+
+	m.Foreach(q, func(did int32, score float32, doc Document) {
+		city := doc.(*ExampleCity)
+		log.Printf("%v matching with score %f", city, score)
+		n++
+	})
+	if n != 1 {
+		t.Fatalf("expected 2 got %d", n)
+	}
 }
 
 func TestExample(t *testing.T) {
@@ -76,6 +99,18 @@ func TestExample(t *testing.T) {
 	}
 	if len(top.Hits) != 1 {
 		t.Fatalf("expected 1")
+	}
+
+	q = iq.Or(m.Terms("name", "aMSterdam sofia")...)
+	top = m.TopN(0, q, func(did int32, score float32, doc Document) float32 {
+		return score
+	})
+
+	if len(top.Hits) != 0 {
+		t.Fatalf("expected 0")
+	}
+	if top.Total != 3 {
+		t.Fatalf("expected 3")
 	}
 }
 

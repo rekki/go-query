@@ -123,12 +123,10 @@ var DefaultNormalizer = []norm.Normalizer{
 
 var DefaultSearchTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
-	tokenize.NewUnique(),
 }
 
 var DefaultIndexTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
-	tokenize.NewUnique(),
 }
 
 var DefaultAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, DefaultSearchTokenizer, DefaultIndexTokenizer)
@@ -138,7 +136,6 @@ var IDAnalyzer = analyzer.NewAnalyzer([]norm.Normalizer{norm.NewNoop()}, []token
 var SoundexTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
 	tokenize.NewSoundex(),
-	tokenize.NewUnique(),
 }
 
 var FuzzyTokenizer = []tokenize.Tokenizer{
@@ -151,7 +148,6 @@ var FuzzyTokenizer = []tokenize.Tokenizer{
 var AutocompleteIndexTokenizer = []tokenize.Tokenizer{
 	tokenize.NewWhitespace(),
 	tokenize.NewLeftEdge(1),
-	tokenize.NewUnique(),
 }
 
 var SoundexAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, SoundexTokenizer, SoundexTokenizer)
@@ -207,7 +203,15 @@ func (m *MemOnlyIndex) add(k, v string, did int32) {
 		pk = map[string][]int32{}
 		m.postings[k] = pk
 	}
-	pk[v] = append(pk[v], did)
+
+	current, ok := pk[v]
+	if !ok || len(current) == 0 {
+		pk[v] = []int32{did}
+	} else {
+		if current[len(current)-1] != did {
+			pk[v] = append(current, did)
+		}
+	}
 }
 
 // Parse dsl input into an query object
