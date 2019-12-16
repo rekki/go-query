@@ -165,6 +165,12 @@ func TestBoost(t *testing.T) {
 	}
 
 	if queryScores(
+		Constant(0, And(Term(6, "x", []int32{1, 2, 3}), Constant(1, Term(6, "x", []int32{1, 2, 3}).SetBoost(200)))),
+	)[0] != 0 {
+		t.Fatal("no boost")
+	}
+
+	if queryScores(
 		Constant(0, Or(Term(6, "x", []int32{1, 2, 3}), Constant(1, Term(6, "x", []int32{1, 2, 3}).SetBoost(200)))).SetBoost(2),
 	)[0] != 2 {
 		t.Fatal("no boost")

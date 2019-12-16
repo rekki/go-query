@@ -10,7 +10,7 @@ type constantQuery struct {
 func Constant(boost float32, q Query) *constantQuery {
 	return &constantQuery{
 		query: q,
-		boost: 1,
+		boost: boost,
 	}
 }
 
