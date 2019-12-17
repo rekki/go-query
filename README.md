@@ -1,4 +1,4 @@
-## github.com/jackdoe/go-query: simple []int32 query library
+## github.com/rekki/go-query: simple []int32 query library
 
 [![Build Status](https://travis-ci.org/rekki/go-query.svg?branch=master)](https://travis-ci.org/rekki/go-query) [![codecov](https://codecov.io/gh/jackdoe/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/jackdoe/go-query) [![GoDoc](https://godoc.org/github.com/rekki/go-query?status.svg)](https://godoc.org/github.com/rekki/go-query)
 
