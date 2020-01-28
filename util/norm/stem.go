@@ -3,7 +3,7 @@ package norm
 import (
 	"strings"
 
-	ps "github.com/reiver/go-porterstemmer"
+	ps "github.com/blevesearch/go-porterstemmer"
 )
 
 type PorterStemmer struct {
