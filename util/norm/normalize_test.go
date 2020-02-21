@@ -50,12 +50,52 @@ func TestSpaceBetweenDigits(t *testing.T) {
 	testMany(t, cases)
 }
 
+var dontOptimizeMe = 0
+
+func BenchmarkRegexp(b *testing.B) {
+	n := []Normalizer{NewCleanup(BASIC_NON_ALPHANUMERIC)}
+	for i := 0; i < b.N; i++ {
+		dontOptimizeMe += len(Normalize("c 1b!2&& にっぽん。。ぽ", n...))
+	}
+}
+func BenchmarkRegexpEasy(b *testing.B) {
+	n := []Normalizer{NewCleanup(BASIC_NON_ALPHANUMERIC)}
+	for i := 0; i < b.N; i++ {
+		dontOptimizeMe += len(Normalize("a b c", n...))
+	}
+}
+
+func BenchmarkRemoveNonAlphanumeric(b *testing.B) {
+	n := []Normalizer{NewRemoveNonAlphanumeric()}
+	for i := 0; i < b.N; i++ {
+		dontOptimizeMe += len(Normalize("c 1b!2&& にっぽん。。ぽ", n...))
+	}
+}
+
+func BenchmarkRemoveNonAlphanumericEasy(b *testing.B) {
+	n := []Normalizer{NewRemoveNonAlphanumeric()}
+	for i := 0; i < b.N; i++ {
+		dontOptimizeMe += len(Normalize("a b c", n...))
+	}
+}
+
 func TestRegexp(t *testing.T) {
 	cases := []TestCase{
 		TestCase{
 			in:  "c 1b!2&& にっぽん。。ぽ",
 			out: "c 1b 2 にっぽん ぽ",
 			n:   []Normalizer{NewCleanup(BASIC_NON_ALPHANUMERIC)},
+		},
+	}
+	testMany(t, cases)
+}
+
+func TestNonAlphanumeric(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "c 1b!2&& にっぽん。。ぽ",
+			out: "c 1b 2 にっぽん ぽ",
+			n:   []Normalizer{NewRemoveNonAlphanumeric()},
 		},
 	}
 	testMany(t, cases)

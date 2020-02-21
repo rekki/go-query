@@ -36,6 +36,15 @@ func IsAZ(s string) bool {
 	return true
 }
 
+func OnlyAlphaNumeric(s string) bool {
+	for _, c := range s {
+		if !unicode.IsDigit(c) && !unicode.IsLetter(c) && !unicode.IsSpace(c) {
+			return false
+		}
+	}
+	return true
+}
+
 func HasDigit(s string) bool {
 	for _, c := range s {
 		if unicode.IsDigit(c) {
@@ -81,5 +90,27 @@ func SpaceBetweenDigits(s string) string {
 		sb.WriteRune(c)
 	}
 
+	return sb.String()
+}
+
+func RemoveNonAlphanumeric(s string) string {
+	if OnlyAlphaNumeric(s) {
+		return s
+	}
+
+	var sb strings.Builder
+	sb.Grow(len(s))
+	wasSpace := false
+	for _, c := range s {
+		if unicode.IsDigit(c) || unicode.IsLetter(c) {
+			sb.WriteRune(c)
+			wasSpace = false
+		} else {
+			if !wasSpace {
+				wasSpace = true
+				sb.WriteRune(' ')
+			}
+		}
+	}
 	return sb.String()
 }

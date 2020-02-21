@@ -266,6 +266,16 @@ func (l *Cleanup) Apply(s string) string {
 	return l.re.ReplaceAllString(s, " ")
 }
 
+type RemoveNonAlphanumeric struct{}
+
+func NewRemoveNonAlphanumeric() *RemoveNonAlphanumeric {
+	return &RemoveNonAlphanumeric{}
+}
+
+func (l *RemoveNonAlphanumeric) Apply(s string) string {
+	return common.RemoveNonAlphanumeric(s)
+}
+
 type Custom struct {
 	f func(string) string
 }
