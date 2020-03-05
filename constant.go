@@ -14,8 +14,8 @@ func Constant(boost float32, q Query) *constantQuery {
 	}
 }
 
-func (q *constantQuery) cost() int {
-	return q.query.cost()
+func (q *constantQuery) Cost() int {
+	return q.query.Cost()
 }
 
 func (q *constantQuery) GetDocId() int32 {
@@ -26,8 +26,8 @@ func (q *constantQuery) Score() float32 {
 	return q.boost
 }
 
-func (q *constantQuery) advance(target int32) int32 {
-	return q.query.advance(target)
+func (q *constantQuery) Advance(target int32) int32 {
+	return q.query.Advance(target)
 }
 
 func (q *constantQuery) Next() int32 {

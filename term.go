@@ -78,7 +78,7 @@ func (t *termQuery) GetDocId() int32 {
 	return t.docId
 }
 
-func (t *termQuery) cost() int {
+func (t *termQuery) Cost() int {
 	return len(t.postings) - t.cursor
 }
 
@@ -120,7 +120,7 @@ func (t *termQuery) findBlock(target int32) int32 {
 	return NO_MORE
 }
 
-func (t *termQuery) advance(target int32) int32 {
+func (t *termQuery) Advance(target int32) int32 {
 	if target > t.currentBlock.maxDoc {
 		if t.findBlock(target) == NO_MORE {
 			t.docId = NO_MORE

@@ -36,16 +36,16 @@ func (q *andQuery) AddSubQuery(sub Query) *andQuery {
 	return q
 }
 
-func (q *andQuery) cost() int {
+func (q *andQuery) Cost() int {
 	if len(q.queries) == 0 {
 		return 0
 	}
-	return q.leading.cost()
+	return q.leading.Cost()
 }
 
 func (q *andQuery) sortSubqueries() {
 	sort.Slice(q.queries, func(i, j int) bool {
-		return q.queries[i].cost() < q.queries[j].cost()
+		return q.queries[i].Cost() < q.queries[j].Cost()
 	})
 	if len(q.queries) > 0 {
 		q.leading = q.queries[0]
@@ -86,21 +86,21 @@ AGAIN:
 			subQuery := q.queries[i]
 			subQueryDocId := subQuery.GetDocId()
 			if subQueryDocId < target {
-				subQueryDocId = subQuery.advance(target)
+				subQueryDocId = subQuery.Advance(target)
 			}
 
 			if subQueryDocId == target {
 				continue
 			}
 
-			target = q.leading.advance(subQueryDocId)
+			target = q.leading.Advance(subQueryDocId)
 
 			i = 0 //restart the loop from the first query
 		}
 
 		if q.not != nil && q.not.GetDocId() != NO_MORE && target != NO_MORE {
-			if q.not.advance(target) == target {
-				target = q.leading.advance(target + 1)
+			if q.not.Advance(target) == target {
+				target = q.leading.Advance(target + 1)
 				continue AGAIN
 			}
 		}
@@ -122,13 +122,13 @@ func (q *andQuery) String() string {
 	return "{" + s + "}"
 }
 
-func (q *andQuery) advance(target int32) int32 {
+func (q *andQuery) Advance(target int32) int32 {
 	if len(q.queries) == 0 {
 		q.docId = NO_MORE
 		return NO_MORE
 	}
 
-	return q.nextAndedDoc(q.leading.advance(target))
+	return q.nextAndedDoc(q.leading.Advance(target))
 }
 
 func (q *andQuery) Next() int32 {

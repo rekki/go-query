@@ -22,12 +22,12 @@ func (q *orQuery) AddSubQuery(sub Query) *orQuery {
 	return q
 }
 
-func (q *orQuery) cost() int {
+func (q *orQuery) Cost() int {
 	//XXX: optimistic, assume sets greatly overlap, which of course is not always true
 	max := 0
 	for _, sub := range q.queries {
-		if max < sub.cost() {
-			max = sub.cost()
+		if max < sub.Cost() {
+			max = sub.Cost()
 		}
 	}
 
@@ -50,14 +50,14 @@ func (q *orQuery) Score() float32 {
 	return float32(score) * q.boost
 }
 
-func (q *orQuery) advance(target int32) int32 {
+func (q *orQuery) Advance(target int32) int32 {
 	newDoc := NO_MORE
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
 		subQuery := q.queries[i]
 		curDoc := subQuery.GetDocId()
 		if curDoc < target {
-			curDoc = subQuery.advance(target)
+			curDoc = subQuery.Advance(target)
 		}
 
 		if curDoc < newDoc {

@@ -86,11 +86,11 @@ const (
 //  	fmt.Printf("matching %d, score: %f\n", did, score)
 //  }
 type Query interface {
-	advance(int32) int32
+	Advance(int32) int32
 	Next() int32
 	GetDocId() int32
 	Score() float32
 	SetBoost(float32) Query
-	cost() int
+	Cost() int
 	String() string
 }
