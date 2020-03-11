@@ -156,7 +156,7 @@ func (d *DirIndex) newTermQuery(field string, term string) iq.Query {
 	return iq.Term(1, fn, postings)
 }
 
-func (d *DirIndex) Close(query iq.Query, cb func(int32, float32)) {
+func (d *DirIndex) Close() {
 	d.Lock()
 	defer d.Unlock()
 
