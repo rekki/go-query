@@ -2,6 +2,7 @@ package index
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -143,6 +144,9 @@ func TestExampleDir(t *testing.T) {
 		&ExampleCity{Name: "Sofia Amsterdam", Country: "BG", ID: 3},
 	}
 
+	for i := len(list); i < 10000; i++ {
+		list = append(list, &ExampleCity{Name: fmt.Sprintf("%dLondon", i), Country: "UK", ID: int32(i)})
+	}
 	err = m.Index(toDocumentsID(list)...)
 	if err != nil {
 		t.Fatal(err)
