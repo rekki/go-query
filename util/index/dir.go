@@ -75,7 +75,6 @@ type DirIndex struct {
 	perField          map[string]*analyzer.Analyzer
 	root              string
 	fdCache           FileDescriptorCache
-	maxOpenFD         int
 	TotalNumberOfDocs int
 }
 
