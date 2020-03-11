@@ -94,6 +94,10 @@ func SpaceBetweenDigits(s string) string {
 }
 
 func RemoveNonAlphanumeric(s string) string {
+	return ReplaceNonAlphanumericWith(s, ' ')
+}
+
+func ReplaceNonAlphanumericWith(s string, r rune) string {
 	if OnlyAlphaNumeric(s) {
 		return s
 	}
@@ -108,7 +112,7 @@ func RemoveNonAlphanumeric(s string) string {
 		} else {
 			if !wasSpace {
 				wasSpace = true
-				sb.WriteRune(' ')
+				sb.WriteRune(r)
 			}
 		}
 	}

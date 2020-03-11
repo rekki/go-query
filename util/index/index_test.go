@@ -2,7 +2,9 @@ package index
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"testing"
 
@@ -13,9 +15,14 @@ import (
 // get full list from https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json
 
 type ExampleCity struct {
+	ID      int32
 	Name    string
 	Country string
 	Names   []string
+}
+
+func (e *ExampleCity) DocumentID() int32 {
+	return e.ID
 }
 
 func (e *ExampleCity) IndexableFields() map[string][]string {
@@ -32,6 +39,14 @@ func toDocuments(in []*ExampleCity) []Document {
 	out := make([]Document, len(in))
 	for i, d := range in {
 		out[i] = Document(d)
+	}
+	return out
+}
+
+func toDocumentsID(in []*ExampleCity) []DocumentWithID {
+	out := make([]DocumentWithID, len(in))
+	for i, d := range in {
+		out[i] = DocumentWithID(d)
 	}
 	return out
 }
@@ -78,7 +93,6 @@ func TestExample(t *testing.T) {
 	if n != 3 {
 		t.Fatalf("expected 2 got %d", n)
 	}
-
 	n = 0
 
 	q = iq.Or(m.Terms("name", "aMSterdam sofia")...)
@@ -112,6 +126,129 @@ func TestExample(t *testing.T) {
 	if top.Total != 3 {
 		t.Fatalf("expected 3")
 	}
+}
+
+func TestExampleDir(t *testing.T) {
+	dir, err := ioutil.TempDir("", "forward")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	m := NewDirIndex(dir, 10, nil)
+	list := []*ExampleCity{
+		&ExampleCity{Name: "Amsterdam", Country: "NL", ID: 0},
+		&ExampleCity{Name: "Amsterdam, USA", Country: "USA", ID: 1},
+		&ExampleCity{Name: "London", Country: "UK", ID: 2},
+		&ExampleCity{Name: "Sofia Amsterdam", Country: "BG", ID: 3},
+	}
+
+	err = m.Index(toDocumentsID(list)...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	n := 0
+	q := iq.And(m.Terms("name", "aMSterdam sofia")...)
+
+	m.Foreach(q, func(did int32, score float32) {
+		city := list[did]
+		log.Printf("%v matching with score %f", city, score)
+		n++
+	})
+	if n != 1 {
+		t.Fatalf("expected 1 got %d", n)
+	}
+
+	n = 0
+	qq := iq.Or(m.Terms("name", "aMSterdam sofia")...)
+
+	m.Foreach(qq, func(did int32, score float32) {
+		city := list[did]
+		log.Printf("%v matching with score %f", city, score)
+		n++
+	})
+	if n != 3 {
+		t.Fatalf("expected 3 got %d", n)
+	}
+
+}
+
+func BenchmarkDirIndexBuild(b *testing.B) {
+	b.StopTimer()
+	dir, err := ioutil.TempDir("", "forward")
+	if err != nil {
+		panic(err)
+	}
+	defer os.RemoveAll(dir)
+
+	m := NewDirIndex(dir, 10, nil)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		err = m.Index(DocumentWithID(&ExampleCity{Name: "Amsterdam", Country: "NL", ID: int32(i)}))
+		if err != nil {
+			panic(err)
+		}
+	}
+	b.StopTimer()
+
+}
+
+func BenchmarkMemIndexBuild(b *testing.B) {
+	m := NewMemOnlyIndex(nil)
+	for i := 0; i < b.N; i++ {
+		m.Index(DocumentWithID(&ExampleCity{Name: "Amsterdam", Country: "NL", ID: int32(i)}))
+	}
+
+}
+
+var dont = 0
+
+func BenchmarkDirIndexSearch10000(b *testing.B) {
+	b.StopTimer()
+	dir, err := ioutil.TempDir("", "forward")
+	if err != nil {
+		panic(err)
+	}
+	defer os.RemoveAll(dir)
+	m := NewDirIndex(dir, 10, nil)
+	for i := 0; i < 10000; i++ {
+		err = m.Index(DocumentWithID(&ExampleCity{Name: "Amsterdam", Country: "NL", ID: int32(i)}))
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		n := 0
+		q := iq.Or(m.Terms("name", "aMSterdam sofia")...)
+		m.Foreach(q, func(did int32, score float32) {
+			n++
+			dont++
+
+		})
+	}
+	b.StopTimer()
+}
+
+func BenchmarkMemIndexSearch10000(b *testing.B) {
+	b.StopTimer()
+	m := NewMemOnlyIndex(nil)
+	for i := 0; i < 10000; i++ {
+		m.Index(Document(&ExampleCity{Name: "Amsterdam", Country: "NL", ID: int32(i)}))
+	}
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		n := 0
+		q := iq.Or(m.Terms("name", "aMSterdam sofia")...)
+		m.Foreach(q, func(did int32, score float32, _d Document) {
+			n++
+			dont++
+
+		})
+	}
+	b.StopTimer()
 }
 
 func TestParsing(t *testing.T) {
