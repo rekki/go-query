@@ -39,6 +39,9 @@ func (x *FDCache) ComputeIfAbsent(fn string, c func(fn string) (*os.File, error)
 	f, ok := x.fdCache[fn]
 	if !ok {
 		x.RUnlock()
+
+		_ = os.MkdirAll(path.Dir(fn), 0700)
+
 		f, err := c(fn)
 
 		if err != nil {
@@ -86,8 +89,14 @@ func NewDirIndex(root string, fdCache FileDescriptorCache, perField map[string]*
 	return &DirIndex{TotalNumberOfDocs: 1, root: root, fdCache: fdCache, perField: perField}
 }
 
+var DirIndexMaxTermLen = 64
+
 func termCleanup(s string) string {
-	return common.ReplaceNonAlphanumericWith(s, '_')
+	x := common.ReplaceNonAlphanumericWith(s, '_')
+	if len(x) > DirIndexMaxTermLen {
+		return x[:DirIndexMaxTermLen]
+	}
+	return x
 }
 
 func (d *DirIndex) add(fn string, did int32) error {
@@ -155,9 +164,6 @@ func (d *DirIndex) Index(docs ...DocumentWithID) error {
 					sb.WriteString(field)
 					sb.WriteRune('/')
 					sb.WriteRune(rune(t[len(t)-1]))
-
-					_ = os.MkdirAll(sb.String(), 0700)
-
 					sb.WriteRune('/')
 					sb.WriteString(t)
 
