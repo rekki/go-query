@@ -156,6 +156,14 @@ func (d *DirIndex) newTermQuery(field string, term string) iq.Query {
 	return iq.Term(1, fn, postings)
 }
 
+func (d *DirIndex) Close(query iq.Query, cb func(int32, float32)) {
+	d.Lock()
+	defer d.Unlock()
+
+	for _, fd := range d.fdCache {
+		_ = fd.Close()
+	}
+}
 func (d *DirIndex) Foreach(query iq.Query, cb func(int32, float32)) {
 	for query.Next() != iq.NO_MORE {
 		did := query.GetDocId()
