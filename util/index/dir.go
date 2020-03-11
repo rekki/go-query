@@ -15,21 +15,76 @@ import (
 	spec "github.com/rekki/go-query/util/go_query_dsl"
 )
 
+type FDCache struct {
+	fdCache   map[string]*os.File
+	maxOpenFD int
+	sync.RWMutex
+}
+
+func NewFDCache(n int) *FDCache {
+	return &FDCache{maxOpenFD: n, fdCache: map[string]*os.File{}}
+}
+
+func (x *FDCache) Close() {
+	x.Lock()
+	defer x.Unlock()
+
+	for _, fd := range x.fdCache {
+		_ = fd.Close()
+	}
+}
+
+func (x *FDCache) ComputeIfAbsent(fn string, c func(fn string) (*os.File, error)) (*os.File, error) {
+	x.RLock()
+	f, ok := x.fdCache[fn]
+	if !ok {
+		x.RUnlock()
+		f, err := c(fn)
+
+		if err != nil {
+			return nil, err
+		}
+
+		x.Lock()
+		overriden, ok := x.fdCache[fn]
+		if ok {
+			f.Close()
+			f = overriden
+		} else {
+			if len(x.fdCache) > x.maxOpenFD {
+				for _, fd := range x.fdCache {
+					_ = fd.Close()
+				}
+				x.fdCache = map[string]*os.File{}
+			}
+			x.fdCache[fn] = f
+		}
+		x.Unlock()
+		return f, nil
+	}
+	x.RUnlock()
+	return f, nil
+}
+
+type FileDescriptorCache interface {
+	ComputeIfAbsent(fn string, c func(fn string) (*os.File, error)) (*os.File, error)
+	Close()
+}
+
 type DirIndex struct {
 	perField          map[string]*analyzer.Analyzer
 	root              string
-	fdCache           map[string]*os.File
+	fdCache           FileDescriptorCache
 	maxOpenFD         int
 	TotalNumberOfDocs int
-	sync.Mutex
 }
 
-func NewDirIndex(root string, maxOpenFD int, perField map[string]*analyzer.Analyzer) *DirIndex {
+func NewDirIndex(root string, fdCache FileDescriptorCache, perField map[string]*analyzer.Analyzer) *DirIndex {
 	if perField == nil {
 		perField = map[string]*analyzer.Analyzer{}
 	}
 
-	return &DirIndex{TotalNumberOfDocs: 1, root: root, maxOpenFD: maxOpenFD, fdCache: map[string]*os.File{}, perField: perField}
+	return &DirIndex{TotalNumberOfDocs: 1, root: root, fdCache: fdCache, perField: perField}
 }
 
 func termCleanup(s string) string {
@@ -38,20 +93,16 @@ func termCleanup(s string) string {
 
 func (d *DirIndex) add(fn string, did int32) error {
 	var err error
-	f, ok := d.fdCache[fn]
-	if !ok {
-		if len(d.fdCache) > d.maxOpenFD {
-			for _, fd := range d.fdCache {
-				_ = fd.Close()
-			}
-			d.fdCache = map[string]*os.File{}
-		}
-
-		f, err = os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0600)
+	f, err := d.fdCache.ComputeIfAbsent(fn, func(_s string) (*os.File, error) {
+		f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		d.fdCache[fn] = f
+		return f, nil
+	})
+
+	if err != nil {
+		return err
 	}
 
 	off, err := f.Seek(0, os.SEEK_END)
@@ -76,9 +127,6 @@ type DocumentWithID interface {
 }
 
 func (d *DirIndex) Index(docs ...DocumentWithID) error {
-	d.Lock()
-	defer d.Unlock()
-
 	var sb strings.Builder
 
 	for _, doc := range docs {
@@ -102,6 +150,7 @@ func (d *DirIndex) Index(docs ...DocumentWithID) error {
 					if len(t) == 0 {
 						continue
 					}
+
 					sb.WriteString(d.root)
 					sb.WriteRune('/')
 					sb.WriteString(field)
@@ -112,6 +161,7 @@ func (d *DirIndex) Index(docs ...DocumentWithID) error {
 
 					sb.WriteRune('/')
 					sb.WriteString(t)
+
 					err := d.add(sb.String(), did)
 					if err != nil {
 						return err
@@ -167,13 +217,9 @@ func (d *DirIndex) newTermQuery(field string, term string) iq.Query {
 }
 
 func (d *DirIndex) Close() {
-	d.Lock()
-	defer d.Unlock()
-
-	for _, fd := range d.fdCache {
-		_ = fd.Close()
-	}
+	d.fdCache.Close()
 }
+
 func (d *DirIndex) Foreach(query iq.Query, cb func(int32, float32)) {
 	for query.Next() != iq.NO_MORE {
 		did := query.GetDocId()

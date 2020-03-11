@@ -136,7 +136,7 @@ func TestExampleDir(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 
-	m := NewDirIndex(dir, 10, nil)
+	m := NewDirIndex(dir, NewFDCache(10), nil)
 	list := []*ExampleCity{
 		&ExampleCity{Name: "Amsterdam", Country: "NL", ID: 0},
 		&ExampleCity{Name: "Amsterdam, USA", Country: "USA", ID: 1},
@@ -185,7 +185,7 @@ func BenchmarkDirIndexBuild(b *testing.B) {
 	}
 	defer os.RemoveAll(dir)
 
-	m := NewDirIndex(dir, 10, nil)
+	m := NewDirIndex(dir, NewFDCache(10), nil)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		err = m.Index(DocumentWithID(&ExampleCity{Name: "Amsterdam", Country: "NL", ID: int32(i)}))
@@ -214,7 +214,7 @@ func BenchmarkDirIndexSearch10000(b *testing.B) {
 		panic(err)
 	}
 	defer os.RemoveAll(dir)
-	m := NewDirIndex(dir, 10, nil)
+	m := NewDirIndex(dir, NewFDCache(10), nil)
 	for i := 0; i < 10000; i++ {
 		err = m.Index(DocumentWithID(&ExampleCity{Name: "Amsterdam", Country: "NL", ID: int32(i)}))
 		if err != nil {
