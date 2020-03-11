@@ -2,6 +2,7 @@ package index
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -15,10 +16,11 @@ import (
 )
 
 type DirIndex struct {
-	perField  map[string]*analyzer.Analyzer
-	root      string
-	fdCache   map[string]*os.File
-	maxOpenFD int
+	perField          map[string]*analyzer.Analyzer
+	root              string
+	fdCache           map[string]*os.File
+	maxOpenFD         int
+	TotalNumberOfDocs int
 	sync.Mutex
 }
 
@@ -27,7 +29,7 @@ func NewDirIndex(root string, maxOpenFD int, perField map[string]*analyzer.Analy
 		perField = map[string]*analyzer.Analyzer{}
 	}
 
-	return &DirIndex{root: root, maxOpenFD: maxOpenFD, fdCache: map[string]*os.File{}, perField: perField}
+	return &DirIndex{TotalNumberOfDocs: 1, root: root, maxOpenFD: maxOpenFD, fdCache: map[string]*os.File{}, perField: perField}
 }
 
 func termCleanup(s string) string {
@@ -84,17 +86,22 @@ func (d *DirIndex) Index(docs ...DocumentWithID) error {
 
 		fields := doc.IndexableFields()
 		for field, value := range fields {
+			field = termCleanup(field)
+			if len(field) == 0 {
+				continue
+			}
+
 			analyzer, ok := d.perField[field]
 			if !ok {
 				analyzer = DefaultAnalyzer
 			}
-
-			field = termCleanup(field)
 			for _, v := range value {
 				tokens := analyzer.AnalyzeIndex(v)
 				for _, t := range tokens {
 					t = termCleanup(t)
-
+					if len(t) == 0 {
+						continue
+					}
 					sb.WriteString(d.root)
 					sb.WriteRune('/')
 					sb.WriteString(field)
@@ -143,17 +150,20 @@ func (d *DirIndex) Terms(field string, term string) []iq.Query {
 func (d *DirIndex) newTermQuery(field string, term string) iq.Query {
 	field = termCleanup(field)
 	term = termCleanup(term)
+	if len(field) == 0 || len(term) == 0 {
+		return iq.Term(d.TotalNumberOfDocs, fmt.Sprintf("broken(%s:%s)", field, term), []int32{})
+	}
 	fn := path.Join(d.root, field, string(term[len(term)-1]), term)
 	data, err := ioutil.ReadFile(fn)
 	if err != nil {
-		return iq.Term(1, fn, []int32{})
+		return iq.Term(d.TotalNumberOfDocs, fn, []int32{})
 	}
 	postings := make([]int32, len(data)/4)
 	for i := 0; i < len(postings); i++ {
 		from := i * 4
 		postings[i] = int32(binary.LittleEndian.Uint32(data[from : from+4]))
 	}
-	return iq.Term(1, fn, postings)
+	return iq.Term(d.TotalNumberOfDocs, fn, postings)
 }
 
 func (d *DirIndex) Close() {
