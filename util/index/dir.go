@@ -90,6 +90,7 @@ type DirIndex struct {
 	root              string
 	fdCache           FileDescriptorCache
 	TotalNumberOfDocs int
+	DirHash           func(s string) string
 }
 
 func NewDirIndex(root string, fdCache FileDescriptorCache, perField map[string]*analyzer.Analyzer) *DirIndex {
@@ -97,7 +98,10 @@ func NewDirIndex(root string, fdCache FileDescriptorCache, perField map[string]*
 		perField = map[string]*analyzer.Analyzer{}
 	}
 
-	return &DirIndex{TotalNumberOfDocs: 1, root: root, fdCache: fdCache, perField: perField}
+	dh := func(s string) string {
+		return string(s[len(s)-1])
+	}
+	return &DirIndex{TotalNumberOfDocs: 1, root: root, fdCache: fdCache, perField: perField, DirHash: dh}
 }
 
 var DirIndexMaxTermLen = 64
@@ -169,7 +173,7 @@ func (d *DirIndex) Index(docs ...DocumentWithID) error {
 					sb.WriteRune('/')
 					sb.WriteString(field)
 					sb.WriteRune('/')
-					sb.WriteRune(rune(t[len(t)-1]))
+					sb.WriteString(d.DirHash(t))
 					sb.WriteRune('/')
 					sb.WriteString(t)
 
