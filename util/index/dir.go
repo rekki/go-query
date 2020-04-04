@@ -99,7 +99,7 @@ func termCleanup(s string) string {
 	return x
 }
 
-func (d *DirIndex) add(fn string, did int32) error {
+func (d *DirIndex) add(fn string, docs []int32) error {
 	var err error
 	f, err := d.fdCache.ComputeIfAbsent(fn, func(_s string) (*os.File, error) {
 		f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0600)
@@ -118,8 +118,10 @@ func (d *DirIndex) add(fn string, did int32) error {
 		return err
 	}
 
-	b := []byte{0, 0, 0, 0}
-	binary.LittleEndian.PutUint32(b, uint32(did))
+	b := make([]byte, 4*len(docs))
+	for i, did := range docs {
+		binary.LittleEndian.PutUint32(b[i*4:], uint32(did))
+	}
 
 	// write at closest multiple of 4
 	_, err = f.WriteAt(b, (off/4)*4)
@@ -136,6 +138,8 @@ type DocumentWithID interface {
 
 func (d *DirIndex) Index(docs ...DocumentWithID) error {
 	var sb strings.Builder
+
+	todo := map[string][]int32{}
 
 	for _, doc := range docs {
 		did := doc.DocumentID()
@@ -167,15 +171,21 @@ func (d *DirIndex) Index(docs ...DocumentWithID) error {
 					sb.WriteRune('/')
 					sb.WriteString(t)
 
-					err := d.add(sb.String(), did)
-					if err != nil {
-						return err
-					}
+					s := sb.String()
+					todo[s] = append(todo[s], did)
 					sb.Reset()
 				}
 			}
 		}
 	}
+
+	for t, docs := range todo {
+		err := d.add(t, docs)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
