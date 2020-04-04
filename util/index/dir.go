@@ -34,21 +34,26 @@ func (x *FDCache) Close() {
 	}
 }
 
-func (x *FDCache) ComputeIfAbsent(fn string, c func(fn string) (*os.File, error)) (*os.File, error) {
+func (x *FDCache) Use(fn string, createFile func(fn string) (*os.File, error), cb func(*os.File) error) error {
+	var err error
+	var ok bool
+	var f *os.File
+
 	x.RLock()
-	f, ok := x.fdCache[fn]
+	f, ok = x.fdCache[fn]
 	if !ok {
 		x.RUnlock()
 
 		_ = os.MkdirAll(path.Dir(fn), 0700)
 
-		f, err := c(fn)
+		f, err = createFile(fn)
 
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		x.Lock()
+
 		overriden, ok := x.fdCache[fn]
 		if ok {
 			f.Close()
@@ -62,15 +67,21 @@ func (x *FDCache) ComputeIfAbsent(fn string, c func(fn string) (*os.File, error)
 			}
 			x.fdCache[fn] = f
 		}
+
+		err = cb(f)
+
 		x.Unlock()
-		return f, nil
+		return err
 	}
+
+	err = cb(f)
+
 	x.RUnlock()
-	return f, nil
+	return err
 }
 
 type FileDescriptorCache interface {
-	ComputeIfAbsent(fn string, c func(fn string) (*os.File, error)) (*os.File, error)
+	Use(fn string, createFile func(fn string) (*os.File, error), cb func(*os.File) error) error
 	Close()
 }
 
@@ -100,35 +111,26 @@ func termCleanup(s string) string {
 }
 
 func (d *DirIndex) add(fn string, docs []int32) error {
-	var err error
-	f, err := d.fdCache.ComputeIfAbsent(fn, func(_s string) (*os.File, error) {
-		f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0600)
-		if err != nil {
-			return nil, err
-		}
-		return f, nil
-	})
+	err := d.fdCache.Use(
+		fn,
+		func(_s string) (*os.File, error) {
+			return os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0600)
+		}, func(f *os.File) error {
+			off, err := f.Seek(0, os.SEEK_END)
+			if err != nil {
+				return err
+			}
 
-	if err != nil {
-		return err
-	}
+			b := make([]byte, 4*len(docs))
+			for i, did := range docs {
+				binary.LittleEndian.PutUint32(b[i*4:], uint32(did))
+			}
 
-	off, err := f.Seek(0, os.SEEK_END)
-	if err != nil {
-		return err
-	}
-
-	b := make([]byte, 4*len(docs))
-	for i, did := range docs {
-		binary.LittleEndian.PutUint32(b[i*4:], uint32(did))
-	}
-
-	// write at closest multiple of 4
-	_, err = f.WriteAt(b, (off/4)*4)
-	if err != nil {
-		return err
-	}
-	return nil
+			// write at closest multiple of 4
+			_, err = f.WriteAt(b, (off/4)*4)
+			return err
+		})
+	return err
 }
 
 type DocumentWithID interface {
