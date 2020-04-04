@@ -224,7 +224,8 @@ func (d *DirIndex) newTermQuery(field string, term string) iq.Query {
 	if len(field) == 0 || len(term) == 0 {
 		return iq.Term(d.TotalNumberOfDocs, fmt.Sprintf("broken(%s:%s)", field, term), []int32{})
 	}
-	fn := path.Join(d.root, field, string(term[len(term)-1]), term)
+	fn := path.Join(d.root, field, d.DirHash(term), term)
+
 	data, err := ioutil.ReadFile(fn)
 	if err != nil {
 		return iq.Term(d.TotalNumberOfDocs, fn, []int32{})
