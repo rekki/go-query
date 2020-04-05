@@ -1,9 +1,13 @@
 package query
 
 import (
+	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
+	"os"
+	"path"
 	"sort"
 	"strings"
 	"testing"
@@ -141,6 +145,13 @@ func TestBoost(t *testing.T) {
 	)[0] < 100 {
 		t.Fatal("no boost")
 	}
+
+	if queryScores(
+		CreateFileTerm(6, "x", []int32{1, 2, 3}).SetBoost(100),
+	)[0] < 100 {
+		t.Fatal("no boost")
+	}
+
 	if queryScores(
 		Or(Term(6, "x", []int32{1, 2, 3})).SetBoost(100),
 	)[0] < 100 {
@@ -205,6 +216,22 @@ func TestAddSubQuery(t *testing.T) {
 	eq(t, []int32{1, 2, 3}, query(DisMax(1, Term(10, "x", []int32{1, 2, 3})).AddSubQuery(Term(10, "x", []int32{2, 3}))))
 }
 
+func CreateFileTerm(n int, _t string, postings []int32) Query {
+	dir, err := ioutil.TempDir("", "tt")
+	if err != nil {
+		panic(err)
+	}
+	defer os.RemoveAll(dir)
+	fn := path.Join(dir, fmt.Sprintf("t_%d", rand.Int()))
+
+	err = AppendFileNameTerm(fn, postings)
+	if err != nil {
+		panic(err)
+	}
+
+	return NewFileTerm(n, fn)
+
+}
 func TestStrings(t *testing.T) {
 	s := Constant(1,
 		DisMax(1,
@@ -212,6 +239,7 @@ func TestStrings(t *testing.T) {
 			Or(
 				AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
 				AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
+				AndNot(CreateFileTerm(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
 			),
 		)).String()
 
@@ -246,7 +274,7 @@ func TestModify(t *testing.T) {
 		computeIDF(10, 4),
 		computeIDF(10, 2) + 0.1*computeIDF(10, 3) + 0.1*computeIDF(10, 4),
 	}, queryScores(
-		DisMax(0.1, Term(10, "x", []int32{1, 2, 3, 4}), Term(10, "x", []int32{1, 2, 4}), Term(10, "x", []int32{1, 4})),
+		DisMax(0.1, Term(10, "x", []int32{1, 2, 3, 4}), Term(10, "x", []int32{1, 2, 4}), CreateFileTerm(10, "x", []int32{1, 4})),
 	))
 
 	qu := Term(10, "x", []int32{1, 2, 3, 4})
@@ -298,6 +326,7 @@ func TestModify(t *testing.T) {
 		e := postingsList(1000000+k, a, b, c, d)
 
 		eq(t, a, query(Term(10, "x", a)))
+		eq(t, a, query(CreateFileTerm(10, "x", a)))
 		eq(t, b, query(Term(10, "x", b)))
 		eq(t, c, query(Term(10, "x", c)))
 		eq(t, d, query(Term(10, "x", d)))
@@ -305,7 +334,9 @@ func TestModify(t *testing.T) {
 
 		eq(t, b, query(Or(
 			Term(10, "x", a),
+			CreateFileTerm(10, "x", a),
 			Term(10, "x", b),
+			CreateFileTerm(10, "x", b),
 		)))
 
 		eq(t, c, query(Or(
@@ -324,9 +355,11 @@ func TestModify(t *testing.T) {
 
 		eq(t, a, query(And(
 			Term(10, "x", a),
+			CreateFileTerm(10, "x", a),
 			Term(10, "x", b),
 			Term(10, "x", c),
 			Term(10, "x", d),
+			CreateFileTerm(10, "x", d),
 			Term(10, "x", e),
 		)))
 
@@ -395,18 +428,26 @@ func TestModify(t *testing.T) {
 			Term(10, "x", []int32{4, 5}),
 			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
 			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+			CreateFileTerm(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}),
+			CreateFileTerm(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}),
 		),
 	)))
 
 	eq(t, []int32{6, 7, 8, 10}, query(AndNot(
-		Or(
-			Term(10, "x", []int32{1, 2}),
-			Term(10, "x", []int32{3, 9})),
+		Term(10, "x", []int32{1, 2, 3, 9}),
 		AndNot(
 			Term(10, "x", []int32{4, 5}),
 			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
 			Term(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}),
+			CreateFileTerm(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}),
+			CreateFileTerm(10, "x", []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}),
 		),
+	)))
+
+	eq(t, []int32{1, 7, 1001}, query(AndNot(
+		nil,
+		CreateFileTerm(10, "x", []int32{1, 3, 5, 7, 100, 1001}),
+		CreateFileTerm(10, "x", []int32{1, 4, 7, 10, 1000, 1001}),
 	)))
 
 	eq(t, []int32{}, query(AndNot(
