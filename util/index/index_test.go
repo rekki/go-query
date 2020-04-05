@@ -175,6 +175,20 @@ func TestExampleDir(t *testing.T) {
 		t.Fatalf("expected 3 got %d", n)
 	}
 
+	m.Lazy = true
+
+	n = 0
+	qqq := iq.Or(m.Terms("name", "aMSterdam sofia")...)
+
+	m.Foreach(qqq, func(did int32, score float32) {
+		city := list[did]
+		log.Printf("lazy %v matching with score %f", city, score)
+		n++
+	})
+	if n != 3 {
+		t.Fatalf("expected 3 got %d", n)
+	}
+
 }
 
 func BenchmarkDirIndexBuild(b *testing.B) {

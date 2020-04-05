@@ -90,6 +90,7 @@ type DirIndex struct {
 	root              string
 	fdCache           FileDescriptorCache
 	TotalNumberOfDocs int
+	Lazy              bool
 	DirHash           func(s string) string
 }
 
@@ -120,19 +121,7 @@ func (d *DirIndex) add(fn string, docs []int32) error {
 		func(_s string) (*os.File, error) {
 			return os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0600)
 		}, func(f *os.File) error {
-			off, err := f.Seek(0, os.SEEK_END)
-			if err != nil {
-				return err
-			}
-
-			b := make([]byte, 4*len(docs))
-			for i, did := range docs {
-				binary.LittleEndian.PutUint32(b[i*4:], uint32(did))
-			}
-
-			// write at closest multiple of 4
-			_, err = f.WriteAt(b, (off/4)*4)
-			return err
+			return iq.AppendFileTerm(f, docs)
 		})
 	return err
 }
@@ -226,16 +215,20 @@ func (d *DirIndex) newTermQuery(field string, term string) iq.Query {
 	}
 	fn := path.Join(d.root, field, d.DirHash(term), term)
 
-	data, err := ioutil.ReadFile(fn)
-	if err != nil {
-		return iq.Term(d.TotalNumberOfDocs, fn, []int32{})
+	if d.Lazy {
+		return iq.NewFileTerm(d.TotalNumberOfDocs, fn)
+	} else {
+		data, err := ioutil.ReadFile(fn)
+		if err != nil {
+			return iq.Term(d.TotalNumberOfDocs, fn, []int32{})
+		}
+		postings := make([]int32, len(data)/4)
+		for i := 0; i < len(postings); i++ {
+			from := i * 4
+			postings[i] = int32(binary.LittleEndian.Uint32(data[from : from+4]))
+		}
+		return iq.Term(d.TotalNumberOfDocs, fn, postings)
 	}
-	postings := make([]int32, len(data)/4)
-	for i := 0; i < len(postings); i++ {
-		from := i * 4
-		postings[i] = int32(binary.LittleEndian.Uint32(data[from : from+4]))
-	}
-	return iq.Term(d.TotalNumberOfDocs, fn, postings)
 }
 
 func (d *DirIndex) Close() {
