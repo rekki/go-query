@@ -23,7 +23,7 @@ type fileTerm struct {
 // The file will be closed automatically when the query is exhausted (reaches the end)
 //
 // WARNING: you must exhaust the query, otherwise you will leak file descriptors.
-func NewFileTerm(totalDocumentsInIndex int, fn string) *fileTerm {
+func FileTerm(totalDocumentsInIndex int, fn string) *fileTerm {
 	file, err := os.OpenFile(fn, os.O_RDONLY, 0600)
 	if err != nil {
 		if os.IsNotExist(err) {

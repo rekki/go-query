@@ -216,7 +216,7 @@ func (d *DirIndex) newTermQuery(field string, term string) iq.Query {
 	fn := path.Join(d.root, field, d.DirHash(term), term)
 
 	if d.Lazy {
-		return iq.NewFileTerm(d.TotalNumberOfDocs, fn)
+		return iq.FileTerm(d.TotalNumberOfDocs, fn)
 	} else {
 		data, err := ioutil.ReadFile(fn)
 		if err != nil {

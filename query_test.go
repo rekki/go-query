@@ -229,7 +229,7 @@ func CreateFileTerm(n int, _t string, postings []int32) Query {
 		panic(err)
 	}
 
-	return NewFileTerm(n, fn)
+	return FileTerm(n, fn)
 
 }
 func TestStrings(t *testing.T) {
@@ -453,12 +453,12 @@ func TestModify(t *testing.T) {
 	eq(t, []int32{}, query(AndNot(
 		nil,
 		CreateFileTerm(10, "x", []int32{1, 3, 5, 7, 100, 1001}),
-		NewFileTerm(0, "/tmp/must_not_exist_some_random_file"),
+		FileTerm(0, "/tmp/must_not_exist_some_random_file"),
 	)))
 
 	eq(t, []int32{1, 3, 5, 7, 100, 1001}, query(Or(
 		CreateFileTerm(10, "x", []int32{1, 3, 5, 7, 100, 1001}),
-		NewFileTerm(0, "/tmp/must_not_exist_some_random_file"),
+		FileTerm(0, "/tmp/must_not_exist_some_random_file"),
 	)))
 
 	eq(t, []int32{}, query(AndNot(
