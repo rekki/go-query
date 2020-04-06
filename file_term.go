@@ -34,6 +34,7 @@ func NewFileTerm(totalDocumentsInIndex int, fn string) *fileTerm {
 				docId:    NO_MORE,
 				boost:    1,
 				idf:      0,
+				closed:   true,
 			}
 		}
 		panic(err)
