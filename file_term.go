@@ -26,6 +26,16 @@ type fileTerm struct {
 func NewFileTerm(totalDocumentsInIndex int, fn string) *fileTerm {
 	file, err := os.OpenFile(fn, os.O_RDONLY, 0600)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return &fileTerm{
+				cursor:   0,
+				postings: nil,
+				n:        0,
+				docId:    NO_MORE,
+				boost:    1,
+				idf:      0,
+			}
+		}
 		panic(err)
 	}
 

@@ -451,6 +451,17 @@ func TestModify(t *testing.T) {
 	)))
 
 	eq(t, []int32{}, query(AndNot(
+		nil,
+		CreateFileTerm(10, "x", []int32{1, 3, 5, 7, 100, 1001}),
+		NewFileTerm(0, "/tmp/must_not_exist_some_random_file"),
+	)))
+
+	eq(t, []int32{1, 3, 5, 7, 100, 1001}, query(Or(
+		CreateFileTerm(10, "x", []int32{1, 3, 5, 7, 100, 1001}),
+		NewFileTerm(0, "/tmp/must_not_exist_some_random_file"),
+	)))
+
+	eq(t, []int32{}, query(AndNot(
 		Term(10, "x", []int32{1, 2, 3, 9}),
 		Term(10, "x", []int32{1, 2, 3, 9}),
 	)))
