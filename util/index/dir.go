@@ -202,12 +202,12 @@ func (d *DirIndex) Terms(field string, term string) []iq.Query {
 	tokens := analyzer.AnalyzeSearch(term)
 	queries := []iq.Query{}
 	for _, t := range tokens {
-		queries = append(queries, d.newTermQuery(field, t))
+		queries = append(queries, d.NewTermQuery(field, t))
 	}
 	return queries
 }
 
-func (d *DirIndex) newTermQuery(field string, term string) iq.Query {
+func (d *DirIndex) NewTermQuery(field string, term string) iq.Query {
 	field = termCleanup(field)
 	term = termCleanup(term)
 	if len(field) == 0 || len(term) == 0 {
