@@ -83,6 +83,58 @@ func TestCharNgram(t *testing.T) {
 	testMany(t, cases)
 }
 
+func TestShingles(t *testing.T) {
+	cases := []TestCase{
+		TestCase{
+			in:  "",
+			out: []string{""},
+			t:   []Tokenizer{NewShingles(3)},
+		},
+		TestCase{
+			in:  "new york",
+			out: []string{"newyork"},
+			t:   []Tokenizer{NewWhitespace(), NewShingles(2)},
+		},
+		TestCase{
+			in:  "new york",
+			out: []string{"new", "york"},
+			t:   []Tokenizer{NewWhitespace(), NewShingles(3)},
+		},
+		TestCase{
+			in:  "new york",
+			out: []string{"new", "york"},
+			t:   []Tokenizer{NewWhitespace(), NewShingles(1)},
+		},
+		TestCase{
+			in:  "new york city",
+			out: []string{"newyork", "yorkcity"},
+			t:   []Tokenizer{NewWhitespace(), NewShingles(2)},
+		},
+		TestCase{
+			in: "new york city",
+			out: []string{
+				"newyorkcity",
+			},
+			t: []Tokenizer{NewWhitespace(), NewShingles(3)},
+		},
+		TestCase{
+			in: "new york city killa",
+			out: []string{
+				"newyorkcity", "yorkcitykilla",
+			},
+			t: []Tokenizer{NewWhitespace(), NewShingles(3)},
+		},
+		TestCase{
+			in: "new york city killa gorilla",
+			out: []string{
+				"newyorkcity", "yorkcitykilla", "citykillagorilla",
+			},
+			t: []Tokenizer{NewWhitespace(), NewShingles(3)},
+		},
+	}
+	testMany(t, cases)
+}
+
 func TestSurround(t *testing.T) {
 	cases := []TestCase{
 		TestCase{
