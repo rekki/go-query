@@ -38,6 +38,17 @@ func (q *orQuery) GetDocId() int32 {
 	return q.docId
 }
 
+func (q *orQuery) PayloadDecode(p Payload) {
+	p.Push()
+	defer p.Pop()
+
+	for _, s := range q.queries {
+		if s.GetDocId() == q.docId {
+			s.PayloadDecode(p)
+		}
+	}
+}
+
 func (q *orQuery) Score() float32 {
 	score := float32(0)
 	n := len(q.queries)

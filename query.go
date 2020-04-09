@@ -93,4 +93,13 @@ type Query interface {
 	SetBoost(float32) Query
 	Cost() int
 	String() string
+
+	PayloadDecode(p Payload)
+}
+
+type Payload interface {
+	Push()
+	Pop()
+	Consume(int32, int, []byte)
+	Score() float32
 }

@@ -140,6 +140,10 @@ func (t *fileTerm) Next() int32 {
 	return t.move(t.cursor)
 }
 
+func (t *fileTerm) PayloadDecode(p Payload) {
+	panic("unsupported")
+}
+
 func AppendFileNameTerm(fn string, docs []int32) error {
 	f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
@@ -150,17 +154,21 @@ func AppendFileNameTerm(fn string, docs []int32) error {
 }
 
 func AppendFileTerm(f *os.File, docs []int32) error {
-	off, err := f.Seek(0, os.SEEK_END)
-	if err != nil {
-		return err
-	}
-
 	b := make([]byte, 4*len(docs))
 	for i, did := range docs {
 		binary.LittleEndian.PutUint32(b[i*4:], uint32(did))
 	}
 
+	return AppendFilePayload(f, 4, b)
+}
+
+func AppendFilePayload(f *os.File, size int64, b []byte) error {
+	off, err := f.Seek(0, os.SEEK_END)
+	if err != nil {
+		return err
+	}
+
 	// write at closest multiple of 4
-	_, err = f.WriteAt(b, (off/4)*4)
+	_, err = f.WriteAt(b, (off/size)*size)
 	return err
 }

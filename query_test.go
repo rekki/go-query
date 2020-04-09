@@ -237,7 +237,7 @@ func TestStrings(t *testing.T) {
 		DisMax(1,
 			AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
 			Or(
-				AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
+				AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3}), PayloadTerm(10, "x", []int32{1, 2, 3}, nil)),
 				AndNot(Term(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
 				AndNot(CreateFileTerm(10, "y", []int32{1}), Term(10, "x", []int32{1, 2, 3}), Term(10, "x", []int32{1, 2, 3})),
 			),
@@ -251,6 +251,10 @@ func TestStrings(t *testing.T) {
 	}
 	if !strings.Contains(s, "DisMax") {
 		t.Fatal("dismax")
+	}
+
+	if !strings.Contains(s, "p_") {
+		t.Fatal("payload")
 	}
 
 	if !strings.Contains(s, "x") {
@@ -330,7 +334,7 @@ func TestModify(t *testing.T) {
 		eq(t, b, query(Term(10, "x", b)))
 		eq(t, c, query(Term(10, "x", c)))
 		eq(t, d, query(Term(10, "x", d)))
-		eq(t, e, query(Term(10, "x", e)))
+		eq(t, e, query(PayloadTerm(10, "x", e, []byte{})))
 
 		eq(t, b, query(Or(
 			Term(10, "x", a),
@@ -479,6 +483,7 @@ func TestModify(t *testing.T) {
 		Or(
 			Term(10, "x", a),
 			Term(10, "x", b),
+			PayloadTerm(10, "x", b, nil),
 		),
 		Term(10, "x", b),
 		Term(10, "x", c),

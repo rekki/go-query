@@ -116,3 +116,7 @@ func (q *disMaxQuery) SetBoost(b float32) Query {
 	q.boost = b
 	return q
 }
+
+func (q *disMaxQuery) PayloadDecode(p Payload) {
+	panic("unsupported")
+}

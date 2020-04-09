@@ -42,3 +42,7 @@ func (q *constantQuery) SetBoost(b float32) Query {
 	q.boost = b
 	return q
 }
+
+func (q *constantQuery) PayloadDecode(p Payload) {
+	panic("unsupported")
+}

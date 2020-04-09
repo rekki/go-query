@@ -161,3 +161,7 @@ func (t *termQuery) SetBoost(b float32) Query {
 	t.boost = b
 	return t
 }
+
+func (t *termQuery) PayloadDecode(p Payload) {
+	panic("unsupported")
+}

@@ -66,6 +66,15 @@ func (q *andQuery) SetBoost(b float32) Query {
 	return q
 }
 
+func (q *andQuery) PayloadDecode(p Payload) {
+	p.Push()
+	defer p.Pop()
+
+	for _, s := range q.queries {
+		s.PayloadDecode(p)
+	}
+}
+
 func (q *andQuery) Score() float32 {
 	score := float32(0)
 	n := len(q.queries)
