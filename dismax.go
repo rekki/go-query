@@ -52,29 +52,20 @@ func (q *disMaxQuery) GetDocId() int32 {
 
 func (q *disMaxQuery) Score() float32 {
 	n := len(q.queries)
+	sum := float32(0)
 	max := float32(0)
+
 	for i := 0; i < n; i++ {
-		q.scores[i] = 0
 		s := q.queries[i]
 		if s.GetDocId() == q.docId {
 			subQueryScore := s.Score()
-			if max < subQueryScore {
+			if subQueryScore > max {
 				max = subQueryScore
 			}
-			q.scores[i] = subQueryScore
+			sum += subQueryScore
 		}
 	}
-	score := float32(0)
-	for i := 0; i < n; i++ {
-		subQueryScore := q.scores[i]
-		if subQueryScore == max {
-			score += subQueryScore
-			max = -1 // count top query only once
-		} else {
-			score += subQueryScore * q.tieBreaker
-		}
-	}
-	return score * q.boost
+	return (max + ((sum - max) * q.tieBreaker)) * q.boost
 }
 
 func (q *disMaxQuery) Advance(target int32) int32 {
