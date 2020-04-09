@@ -112,6 +112,29 @@ func NewNoop() *Noop
 func (w *Noop) Apply(current []string) []string
 ```
 
+#### type Shingles
+
+```go
+type Shingles struct {
+}
+```
+
+Shingles tokenizer (n-gram for words)
+
+#### func  NewShingles
+
+```go
+func NewShingles(size int) *Shingles
+```
+NewShingles creates new Shingles struct
+
+#### func (*Shingles) Apply
+
+```go
+func (shingles *Shingles) Apply(current []string) []string
+```
+Apply applies shingles tokenizer
+
 #### type Soundex
 
 ```go

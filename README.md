@@ -110,6 +110,10 @@ const (
 ```
 
 ```go
+var ByteOrder = binary.LittleEndian
+```
+
+```go
 var TERM_CHUNK_SIZE = 4096
 ```
 splits the postings list into chunks that are binary searched and inside each
@@ -128,6 +132,24 @@ Creates AND query
 func AndNot(not Query, queries ...Query) *andQuery
 ```
 Creates AND NOT query
+
+#### func  AppendFileNameTerm
+
+```go
+func AppendFileNameTerm(fn string, docs []int32) error
+```
+
+#### func  AppendFilePayload
+
+```go
+func AppendFilePayload(f *os.File, size int64, b []byte) error
+```
+
+#### func  AppendFileTerm
+
+```go
+func AppendFileTerm(f *os.File, docs []int32) error
+```
 
 #### func  Constant
 
@@ -152,12 +174,31 @@ university: 2.1 the score is computed by:
     + score(amsterdam) * tiebreaker = 0.65
     = 2.85
 
+#### func  FileTerm
+
+```go
+func FileTerm(totalDocumentsInIndex int, fn string) *fileTerm
+```
+Create new lazy term from stored ByteOrder (by default little endian) encoded
+array of integers
+
+The file will be closed automatically when the query is exhausted (reaches the
+end)
+
+WARNING: you must exhaust the query, otherwise you will leak file descriptors.
+
 #### func  Or
 
 ```go
 func Or(queries ...Query) *orQuery
 ```
 Creates OR query
+
+#### func  PayloadTerm
+
+```go
+func PayloadTerm(totalDocumentsInIndex int, t string, postings []int32, payload []byte) *payloadTermQuery
+```
 
 #### func  Term
 
@@ -169,17 +210,31 @@ just 1*idf, since we dont store the term frequency for now) if you dont know
 totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
 WARNING: the query *can not* be reused WARNING: the query it not thread safe
 
+#### type Payload
+
+```go
+type Payload interface {
+	Push()
+	Pop()
+	Consume(int32, int, []byte)
+	Score() float32
+}
+```
+
+
 #### type Query
 
 ```go
 type Query interface {
+	Advance(int32) int32
 	Next() int32
 	GetDocId() int32
 	Score() float32
 	SetBoost(float32) Query
-
+	Cost() int
 	String() string
-	// contains filtered or unexported methods
+
+	PayloadDecode(p Payload)
 }
 ```
 
@@ -366,6 +421,10 @@ var DefaultSearchTokenizer = []tokenize.Tokenizer{
 ```
 
 ```go
+var DirIndexMaxTermLen = 64
+```
+
+```go
 var FuzzyAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, FuzzyTokenizer, FuzzyTokenizer)
 ```
 
@@ -439,6 +498,59 @@ simple (*slow*) helper method that takes interface{} and converst it to
 spec.Query with jsonpb in case you receive request like request = {"limit":10,
 query: ....}, pass request.query to QueryFromJson and get a query object back
 
+#### type DirIndex
+
+```go
+type DirIndex struct {
+	TotalNumberOfDocs int
+	Lazy              bool
+	DirHash           func(s string) string
+}
+```
+
+
+#### func  NewDirIndex
+
+```go
+func NewDirIndex(root string, fdCache FileDescriptorCache, perField map[string]*analyzer.Analyzer) *DirIndex
+```
+
+#### func (*DirIndex) Close
+
+```go
+func (d *DirIndex) Close()
+```
+
+#### func (*DirIndex) Foreach
+
+```go
+func (d *DirIndex) Foreach(query iq.Query, cb func(int32, float32))
+```
+
+#### func (*DirIndex) Index
+
+```go
+func (d *DirIndex) Index(docs ...DocumentWithID) error
+```
+
+#### func (*DirIndex) NewTermQuery
+
+```go
+func (d *DirIndex) NewTermQuery(field string, term string) iq.Query
+```
+
+#### func (*DirIndex) Parse
+
+```go
+func (d *DirIndex) Parse(input *spec.Query) (iq.Query, error)
+```
+
+#### func (*DirIndex) Terms
+
+```go
+func (d *DirIndex) Terms(field string, term string) []iq.Query
+```
+
 #### type Document
 
 ```go
@@ -464,6 +576,53 @@ Example if you want to index fields "name" and "country":
 
     	return out
     }
+
+#### type DocumentWithID
+
+```go
+type DocumentWithID interface {
+	IndexableFields() map[string][]string
+	DocumentID() int32
+}
+```
+
+
+#### type FDCache
+
+```go
+type FDCache struct {
+	sync.RWMutex
+}
+```
+
+
+#### func  NewFDCache
+
+```go
+func NewFDCache(n int) *FDCache
+```
+
+#### func (*FDCache) Close
+
+```go
+func (x *FDCache) Close()
+```
+
+#### func (*FDCache) Use
+
+```go
+func (x *FDCache) Use(fn string, createFile func(fn string) (*os.File, error), cb func(*os.File) error) error
+```
+
+#### type FileDescriptorCache
+
+```go
+type FileDescriptorCache interface {
+	Use(fn string, createFile func(fn string) (*os.File, error), cb func(*os.File) error) error
+	Close()
+}
+```
+
 
 #### type Hit
 

@@ -134,6 +134,25 @@ func NewPorterStemmer() *PorterStemmer
 func (p *PorterStemmer) Apply(s string) string
 ```
 
+#### type RemoveNonAlphanumeric
+
+```go
+type RemoveNonAlphanumeric struct{}
+```
+
+
+#### func  NewRemoveNonAlphanumeric
+
+```go
+func NewRemoveNonAlphanumeric() *RemoveNonAlphanumeric
+```
+
+#### func (*RemoveNonAlphanumeric) Apply
+
+```go
+func (l *RemoveNonAlphanumeric) Apply(s string) string
+```
+
 #### type SpaceBetweenDigits
 
 ```go
