@@ -147,6 +147,12 @@ func TestBoost(t *testing.T) {
 	}
 
 	if queryScores(
+		PayloadTerm(6, "x", []int32{1, 2, 3}, nil).SetBoost(100),
+	)[0] < 100 {
+		t.Fatal("no boost")
+	}
+
+	if queryScores(
 		CreateFileTerm(6, "x", []int32{1, 2, 3}).SetBoost(100),
 	)[0] < 100 {
 		t.Fatal("no boost")
