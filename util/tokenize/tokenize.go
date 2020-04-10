@@ -140,6 +140,38 @@ func (w *CharNgram) Apply(current []string) []string {
 	return out
 }
 
+// Shingles tokenizer (n-gram for words)
+type Shingles struct {
+	size int
+}
+
+// NewShingles creates new Shingles struct
+func NewShingles(size int) *Shingles {
+	return &Shingles{size: size}
+}
+
+// Apply applies shingles tokenizer
+func (shingles *Shingles) Apply(current []string) []string {
+	out := []string{}
+	length := len(current)
+
+	if shingles.size > length {
+		return current
+	}
+
+	for i := 0; i < length; i++ {
+		size := i + shingles.size
+
+		if size > length {
+			break
+		}
+
+		out = append(out, strings.Join(current[i:size], ""))
+	}
+
+	return out
+}
+
 // NewSurround("$").Apply([]string{"h","he","hel"}) -> []string{"$h","he","hel$"}
 type Surround struct {
 	s string

@@ -128,6 +128,10 @@ var DefaultSearchTokenizer = []tokenize.Tokenizer{
 ```
 
 ```go
+var DirIndexMaxTermLen = 64
+```
+
+```go
 var FuzzyAnalyzer = analyzer.NewAnalyzer(DefaultNormalizer, FuzzyTokenizer, FuzzyTokenizer)
 ```
 
@@ -201,6 +205,59 @@ simple (*slow*) helper method that takes interface{} and converst it to
 spec.Query with jsonpb in case you receive request like request = {"limit":10,
 query: ....}, pass request.query to QueryFromJson and get a query object back
 
+#### type DirIndex
+
+```go
+type DirIndex struct {
+	TotalNumberOfDocs int
+	Lazy              bool
+	DirHash           func(s string) string
+}
+```
+
+
+#### func  NewDirIndex
+
+```go
+func NewDirIndex(root string, fdCache FileDescriptorCache, perField map[string]*analyzer.Analyzer) *DirIndex
+```
+
+#### func (*DirIndex) Close
+
+```go
+func (d *DirIndex) Close()
+```
+
+#### func (*DirIndex) Foreach
+
+```go
+func (d *DirIndex) Foreach(query iq.Query, cb func(int32, float32))
+```
+
+#### func (*DirIndex) Index
+
+```go
+func (d *DirIndex) Index(docs ...DocumentWithID) error
+```
+
+#### func (*DirIndex) NewTermQuery
+
+```go
+func (d *DirIndex) NewTermQuery(field string, term string) iq.Query
+```
+
+#### func (*DirIndex) Parse
+
+```go
+func (d *DirIndex) Parse(input *spec.Query) (iq.Query, error)
+```
+
+#### func (*DirIndex) Terms
+
+```go
+func (d *DirIndex) Terms(field string, term string) []iq.Query
+```
+
 #### type Document
 
 ```go
@@ -226,6 +283,53 @@ Example if you want to index fields "name" and "country":
 
     	return out
     }
+
+#### type DocumentWithID
+
+```go
+type DocumentWithID interface {
+	IndexableFields() map[string][]string
+	DocumentID() int32
+}
+```
+
+
+#### type FDCache
+
+```go
+type FDCache struct {
+	sync.RWMutex
+}
+```
+
+
+#### func  NewFDCache
+
+```go
+func NewFDCache(n int) *FDCache
+```
+
+#### func (*FDCache) Close
+
+```go
+func (x *FDCache) Close()
+```
+
+#### func (*FDCache) Use
+
+```go
+func (x *FDCache) Use(fn string, createFile func(fn string) (*os.File, error), cb func(*os.File) error) error
+```
+
+#### type FileDescriptorCache
+
+```go
+type FileDescriptorCache interface {
+	Use(fn string, createFile func(fn string) (*os.File, error), cb func(*os.File) error) error
+	Close()
+}
+```
+
 
 #### type Hit
 
