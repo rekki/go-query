@@ -150,25 +150,27 @@ func NewShingles(size int) *Shingles {
 	return &Shingles{size: size}
 }
 
-// Apply applies shingles tokenizer
+// Apply applies semi shingles tokenizer
+// it creates permutations "new","york","city" -> "new","newyork","york","yorkcity"
+// it is very handy becuase when people search sometimes they just dont put space
 func (shingles *Shingles) Apply(current []string) []string {
-	out := []string{}
+	out := make([]string, 0, len(current)*shingles.size)
 	length := len(current)
-
-	if shingles.size > length {
+	if shingles.size > length || shingles.size < 2 {
 		return current
 	}
 
-	for i := 0; i < length; i++ {
-		size := i + shingles.size
+	// new york city
+	// new newyork york yorkcity
+	for idx, s := range current {
+		out = append(out, s)
+		end := idx + shingles.size
 
-		if size > length {
-			break
+		if end <= length {
+			out = append(out, strings.Join(current[idx:end], ""))
 		}
 
-		out = append(out, strings.Join(current[i:size], ""))
 	}
-
 	return out
 }
 

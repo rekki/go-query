@@ -92,7 +92,7 @@ func TestShingles(t *testing.T) {
 		},
 		TestCase{
 			in:  "new york",
-			out: []string{"newyork"},
+			out: []string{"new", "newyork", "york"},
 			t:   []Tokenizer{NewWhitespace(), NewShingles(2)},
 		},
 		TestCase{
@@ -107,27 +107,27 @@ func TestShingles(t *testing.T) {
 		},
 		TestCase{
 			in:  "new york city",
-			out: []string{"newyork", "yorkcity"},
+			out: []string{"new", "newyork", "york", "yorkcity", "city"},
 			t:   []Tokenizer{NewWhitespace(), NewShingles(2)},
 		},
 		TestCase{
 			in: "new york city",
 			out: []string{
-				"newyorkcity",
+				"new", "newyorkcity", "york", "city",
 			},
 			t: []Tokenizer{NewWhitespace(), NewShingles(3)},
 		},
 		TestCase{
 			in: "new york city killa",
 			out: []string{
-				"newyorkcity", "yorkcitykilla",
+				"new", "newyorkcity", "york", "yorkcitykilla", "city", "killa",
 			},
 			t: []Tokenizer{NewWhitespace(), NewShingles(3)},
 		},
 		TestCase{
 			in: "new york city killa gorilla",
 			out: []string{
-				"newyorkcity", "yorkcitykilla", "citykillagorilla",
+				"new", "newyorkcity", "york", "yorkcitykilla", "city", "citykillagorilla", "killa", "gorilla",
 			},
 			t: []Tokenizer{NewWhitespace(), NewShingles(3)},
 		},
