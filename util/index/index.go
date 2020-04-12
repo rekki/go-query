@@ -80,8 +80,6 @@
 //  2019/12/03 18:40:11 &{Amsterdam University NL Second} matching with score 6.428843
 //  2019/12/03 18:40:11 &{London UK} matching with score 0.537528
 //  2019/12/03 18:40:11 &{Sofia BG} matching with score 0.035835
-
-// Package index provides index of util module
 package index
 
 import (

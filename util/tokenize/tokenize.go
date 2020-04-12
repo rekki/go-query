@@ -9,9 +9,7 @@
 //
 //  	fmt.Printf("%v",tokens) // [h he hel hell hello w wo wor worl world]
 //  }
-
-// Package tokenize consist of the various tokenizers,
-// for whitespace, edges and etc
+//
 package tokenize
 
 import (

@@ -10,8 +10,6 @@
 //  	fmt.Printf("%s",normal) // hello world へへ l 2 l
 //  }
 //
-
-// Package norm exports normalizers for tokens
 package norm
 
 import (
