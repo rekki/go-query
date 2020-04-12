@@ -52,7 +52,6 @@ func queryScores(query Query) []float32 {
 func eq(t *testing.T, a, b []int32) {
 	if len(a) != len(b) {
 		log.Panicf("len(a) != len(b) ; len(a) = %d, len(b) = %d [%v %v]", len(a), len(b), a, b)
-		t.FailNow()
 	}
 
 	for i := range a {
@@ -66,7 +65,6 @@ func eq(t *testing.T, a, b []int32) {
 func eqF(t *testing.T, a, b []float32) {
 	if len(a) != len(b) {
 		log.Panicf("len(a) != len(b) ; len(a) = %d, len(b) = %d [%v %v]", len(a), len(b), a, b)
-		t.FailNow()
 	}
 
 	for i := range a {

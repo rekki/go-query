@@ -217,18 +217,17 @@ func (d *DirIndex) NewTermQuery(field string, term string) iq.Query {
 
 	if d.Lazy {
 		return iq.FileTerm(d.TotalNumberOfDocs, fn)
-	} else {
-		data, err := ioutil.ReadFile(fn)
-		if err != nil {
-			return iq.Term(d.TotalNumberOfDocs, fn, []int32{})
-		}
-		postings := make([]int32, len(data)/4)
-		for i := 0; i < len(postings); i++ {
-			from := i * 4
-			postings[i] = int32(binary.LittleEndian.Uint32(data[from : from+4]))
-		}
-		return iq.Term(d.TotalNumberOfDocs, fn, postings)
 	}
+	data, err := ioutil.ReadFile(fn)
+	if err != nil {
+		return iq.Term(d.TotalNumberOfDocs, fn, []int32{})
+	}
+	postings := make([]int32, len(data)/4)
+	for i := 0; i < len(postings); i++ {
+		from := i * 4
+		postings[i] = int32(binary.LittleEndian.Uint32(data[from : from+4]))
+	}
+	return iq.Term(d.TotalNumberOfDocs, fn, postings)
 }
 
 func (d *DirIndex) Close() {
