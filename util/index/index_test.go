@@ -55,8 +55,8 @@ func toDocumentsID(in []*ExampleCity) []DocumentWithID {
 func TestUnique(t *testing.T) {
 	m := NewMemOnlyIndex(nil)
 	list := []*ExampleCity{
-		&ExampleCity{Names: []string{"Amsterdam", "Amsterdam"}, Country: "NL"},
-		&ExampleCity{Names: []string{"Sofia", "Sofia"}, Country: "NL"},
+		{Names: []string{"Amsterdam", "Amsterdam"}, Country: "NL"},
+		{Names: []string{"Sofia", "Sofia"}, Country: "NL"},
 	}
 
 	m.Index(toDocuments(list)...)
@@ -76,10 +76,10 @@ func TestUnique(t *testing.T) {
 func TestExample(t *testing.T) {
 	m := NewMemOnlyIndex(nil)
 	list := []*ExampleCity{
-		&ExampleCity{Name: "Amsterdam", Country: "NL"},
-		&ExampleCity{Name: "Amsterdam, USA", Country: "USA"},
-		&ExampleCity{Name: "London", Country: "UK"},
-		&ExampleCity{Name: "Sofia", Country: "BG"},
+		{Name: "Amsterdam", Country: "NL"},
+		{Name: "Amsterdam, USA", Country: "USA"},
+		{Name: "London", Country: "UK"},
+		{Name: "Sofia", Country: "BG"},
 	}
 
 	m.Index(toDocuments(list)...)
@@ -138,10 +138,10 @@ func TestExampleDir(t *testing.T) {
 
 	m := NewDirIndex(dir, NewFDCache(10), nil)
 	list := []*ExampleCity{
-		&ExampleCity{Name: "Amsterdam", Country: "NL", ID: 0},
-		&ExampleCity{Name: "Amsterdam, USA", Country: "USA", ID: 1},
-		&ExampleCity{Name: "London", Country: "UK", ID: 2},
-		&ExampleCity{Name: "Sofia Amsterdam", Country: "BG", ID: 3},
+		{Name: "Amsterdam", Country: "NL", ID: 0},
+		{Name: "Amsterdam, USA", Country: "USA", ID: 1},
+		{Name: "London", Country: "UK", ID: 2},
+		{Name: "Sofia Amsterdam", Country: "BG", ID: 3},
 	}
 
 	for i := len(list); i < 10000; i++ {
@@ -272,10 +272,10 @@ func BenchmarkMemIndexSearch10000(b *testing.B) {
 func TestParsing(t *testing.T) {
 	m := NewMemOnlyIndex(nil)
 	list := []*ExampleCity{
-		&ExampleCity{Name: "Amsterdam", Country: "NL"},
-		&ExampleCity{Name: "Amsterdam, USA", Country: "USA"},
-		&ExampleCity{Name: "London", Country: "UK"},
-		&ExampleCity{Name: "Sofia", Country: "BG"},
+		{Name: "Amsterdam", Country: "NL"},
+		{Name: "Amsterdam, USA", Country: "USA"},
+		{Name: "London", Country: "UK"},
+		{Name: "Sofia", Country: "BG"},
 	}
 
 	m.Index(toDocuments(list)...)

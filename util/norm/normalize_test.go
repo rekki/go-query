@@ -20,28 +20,28 @@ func testMany(t *testing.T, cases []TestCase) {
 
 func TestSpaceBetweenDigits(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "c 1b",
 			out: "c 1 b",
 			n:   []Normalizer{NewSpaceBetweenDigits()},
 		},
 
-		TestCase{
+		{
 			in:  "1",
 			out: "1",
 			n:   []Normalizer{NewSpaceBetweenDigits()},
 		},
-		TestCase{
+		{
 			in:  "a1b",
 			out: "a 1 b",
 			n:   []Normalizer{NewSpaceBetweenDigits()},
 		},
-		TestCase{
+		{
 			in:  "",
 			out: "",
 			n:   []Normalizer{NewSpaceBetweenDigits()},
 		},
-		TestCase{
+		{
 			in:  "9 abc 1b",
 			out: "9 abc 1 b",
 			n:   []Normalizer{NewSpaceBetweenDigits()},
@@ -81,7 +81,7 @@ func BenchmarkRemoveNonAlphanumericEasy(b *testing.B) {
 
 func TestRegexp(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "c 1b!2&& にっぽん。。ぽ",
 			out: "c 1b 2 にっぽん ぽ",
 			n:   []Normalizer{NewCleanup(BASIC_NON_ALPHANUMERIC)},
@@ -92,7 +92,7 @@ func TestRegexp(t *testing.T) {
 
 func TestNonAlphanumeric(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "c 1b!2&& にっぽん。。ぽ",
 			out: "c 1b 2 にっぽん ぽ",
 			n:   []Normalizer{NewRemoveNonAlphanumeric()},
@@ -103,7 +103,7 @@ func TestNonAlphanumeric(t *testing.T) {
 
 func TestNoop(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "c 1b!2&& にっぽん。。ぽ",
 			out: "c 1b!2&& にっぽん。。ぽ",
 			n:   []Normalizer{NewNoop()},
@@ -114,23 +114,23 @@ func TestNoop(t *testing.T) {
 
 func TestPorter(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "dogs hello cats",
 			out: "dog hel cat",
 			n:   []Normalizer{NewPorterStemmer()},
 		},
-		TestCase{
+		{
 			in:  "dogs",
 			out: "dog",
 			n:   []Normalizer{NewPorterStemmer()},
 		},
-		TestCase{
+		{
 			in:  "dogs   ",
 			out: "dog",
 			n:   []Normalizer{NewPorterStemmer()},
 		},
 
-		TestCase{
+		{
 			in:  "",
 			out: "",
 			n:   []Normalizer{NewPorterStemmer()},
@@ -141,7 +141,7 @@ func TestPorter(t *testing.T) {
 
 func TestUnaccent(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "ğüşöçİĞÜŞÖÇ にっ ぽん べぺぜじがぎゃぽhelloęĘŁłŚśŹźŃńä, ö or ü",
 			out: "gusocIGUSOC にっ ほん へへせしかきゃほhelloeELlSsZzNna, o or u",
 			n:   []Normalizer{NewUnaccent()},
@@ -152,7 +152,7 @@ func TestUnaccent(t *testing.T) {
 
 func TestLowerCase(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "AAğüşöçİĞÜŞÖÇ にっ ぽん べぺぜじがぎゃぽhelloęĘŁłŚśŹźŃńä, ö or ü",
 			out: "aağüşöçiğüşöç にっ ぽん べぺぜじがぎゃぽhelloęęłłśśźźńńä, ö or ü",
 			n:   []Normalizer{NewLowerCase()},
@@ -163,7 +163,7 @@ func TestLowerCase(t *testing.T) {
 
 func TestCustom(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "AAğüşöçİĞÜŞÖÇ にっ ぽん べぺぜじがぎゃぽhelloęĘŁłŚśŹźŃńä, ö or ü",
 			out: "NOO AAgusocIGUSOC にっ ほん へへせしかきゃほhelloeELlSsZzNna, o or u",
 			n: []Normalizer{NewUnaccent(), NewCustom(func(s string) string {
@@ -176,7 +176,7 @@ func TestCustom(t *testing.T) {
 
 func TestTrim(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "  AAğüşöçİĞÜŞÖÇ にっ ぽん べぺぜじがぎゃぽhelloęĘŁłŚśŹźŃńä, ö or ü !!!",
 			out: "AAgusocIGUSOC にっ ほん へへせしかきゃほhelloeELlSsZzNna, o or u",
 			n:   []Normalizer{NewTrim(" !"), NewUnaccent()},
@@ -187,7 +187,7 @@ func TestTrim(t *testing.T) {
 
 func TestCompose(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "AAğüşöç251İĞÜŞÖÇ にっ ぽん べぺぜ12じがぎゃぽhell2oęĘŁ2łŚśŹźŃńä, ö or ü",
 			out: "aagusoc 251 igusoc にっ ほん へへせ 12 しかきゃほhell 2 oeel 2 lsszznna o or u",
 			n:   []Normalizer{NewUnaccent(), NewLowerCase(), NewSpaceBetweenDigits(), NewCleanup(BASIC_NON_ALPHANUMERIC), NewTrim(" ")},
