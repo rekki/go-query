@@ -6,6 +6,11 @@ install:
 	$(GO) get -v -t $(GO_FILES)
 .PHONY: install
 
+doc: 
+	@echo "doc code"
+	@scripts/doc.sh 
+.PHONY: doc
+
 lint: vet golangci-lint revive sec
 .PHONY: lint
 
