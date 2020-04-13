@@ -8,7 +8,7 @@ install:
 
 test:
 	@echo "[+] test"
-	$(GO) test -v -race $(GO_FILES)
+	$(GO) test -cover -v -race $(GO_FILES)
 .PHONY: test
 
 coverage:

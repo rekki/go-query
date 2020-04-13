@@ -14,9 +14,9 @@ errorCode = 1
 [rule.dot-imports]
 [rule.receiver-naming]
 [rule.blank-imports]
+[rule.package-comments]
 
 # Those are probably should be enabled at some point
-# [rule.package-comments]
 # [rule.exported]
 # [rule.unexported-return]
 # [rule.var-naming]
