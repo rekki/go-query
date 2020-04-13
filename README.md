@@ -18,12 +18,11 @@ And(
 )
 ```
 
-* scoring: only idf scode (for now)
-* supported queries: or, and, and_not, dis_max, constant, term
-* util/norm: space_between_digits, lowercase, trim, cleanup, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query/util/norm?status.svg)](https://godoc.org/github.com/rekki/go-query/util/norm)
-* util/tokenize: left edge, custom, charngram, unique, soundex, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query/util/tokenize?status.svg)](https://godoc.org/github.com/rekki/go-query/util/tokenize)
-* util/memory index: useful example of how to build more complex search engine with the library [![GoDoc](https://godoc.org/github.com/rekki/go-query/util/index?status.svg)](https://godoc.org/github.com/rekki/go-query/util/index)
-
+- scoring: only idf scode (for now)
+- supported queries: or, and, and_not, dis_max, constant, term
+- `go-query-normalize`: space_between_digits, lowercase, trim, cleanup, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query-normalize?status.svg)](https://godoc.org/github.com/rekki/go-query-normalize)
+- util/tokenize: left edge, custom, charngram, unique, soundex, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query/util/tokenize?status.svg)](https://godoc.org/github.com/rekki/go-query/util/tokenize)
+- util/memory index: useful example of how to build more complex search engine with the library [![GoDoc](https://godoc.org/github.com/rekki/go-query/util/index?status.svg)](https://godoc.org/github.com/rekki/go-query/util/index)
 
 ---
 # query

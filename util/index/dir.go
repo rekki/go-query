@@ -10,8 +10,8 @@ import (
 	"sync"
 
 	iq "github.com/rekki/go-query"
+	normalizeTools "github.com/rekki/go-query-normalize/tools"
 	"github.com/rekki/go-query/util/analyzer"
-	"github.com/rekki/go-query/util/common"
 	spec "github.com/rekki/go-query/util/go_query_dsl"
 )
 
@@ -108,7 +108,7 @@ func NewDirIndex(root string, fdCache FileDescriptorCache, perField map[string]*
 var DirIndexMaxTermLen = 64
 
 func termCleanup(s string) string {
-	x := common.ReplaceNonAlphanumericWith(s, '_')
+	x := normalizeTools.ReplaceNonAlphanumericWith(s, '_')
 	if len(x) > DirIndexMaxTermLen {
 		return x[:DirIndexMaxTermLen]
 	}

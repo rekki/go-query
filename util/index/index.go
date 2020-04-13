@@ -83,8 +83,8 @@
 package index
 
 import (
+	norm "github.com/rekki/go-query-normalize"
 	"github.com/rekki/go-query/util/analyzer"
-	"github.com/rekki/go-query/util/norm"
 	"github.com/rekki/go-query/util/tokenize"
 )
 

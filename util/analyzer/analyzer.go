@@ -1,7 +1,7 @@
 package analyzer
 
 import (
-	"github.com/rekki/go-query/util/norm"
+	norm "github.com/rekki/go-query-normalize"
 	"github.com/rekki/go-query/util/tokenize"
 )
 
