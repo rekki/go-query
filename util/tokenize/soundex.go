@@ -57,13 +57,13 @@ func NewSoundex() *Soundex {
 	return &Soundex{}
 }
 
-func (w *Soundex) Apply(current []string) []string {
+func (w *Soundex) Apply(current []Token) []Token {
 	if len(current) == 0 {
 		return current
 	}
-	out := make([]string, len(current))
+	out := make([]Token, len(current))
 	for i := 0; i < len(current); i++ {
-		out[i] = EncodeSoundex(current[i])
+		out[i] = current[i].Clone(EncodeSoundex(current[i].Text))
 	}
 	return out
 }

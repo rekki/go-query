@@ -10,12 +10,30 @@ type TestCase struct {
 	t   []Tokenizer
 }
 
+type TestCaseT struct {
+	in  string
+	out []Token
+	t   []Tokenizer
+}
+
 func Equal(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
 	for i, v := range a {
 		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func EqualT(a, b []Token) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v.Text != b[i].Text || v.Position != b[i].Position || v.LineNo != b[i].LineNo {
 			return false
 		}
 	}
@@ -31,6 +49,15 @@ func testMany(t *testing.T, cases []TestCase) {
 	}
 }
 
+func testManyT(t *testing.T, cases []TestCaseT) {
+	for _, c := range cases {
+		tokenized := TokenizeT(c.in, c.t...)
+		if !EqualT(tokenized, c.out) {
+			t.Fatalf("in: <%s>, out: <%v>, expected: <%v>", c.in, tokenized, c.out)
+		}
+	}
+}
+
 func TestUnique(t *testing.T) {
 	cases := []TestCase{
 		{
@@ -40,6 +67,38 @@ func TestUnique(t *testing.T) {
 		},
 	}
 	testMany(t, cases)
+}
+
+func TestPositions(t *testing.T) {
+	cases := []TestCaseT{
+		{
+			in:  "hello hello world a    b     c   ",
+			out: []Token{{"hello", 0, 0}, {"world", 2, 0}, {"a", 3, 0}, {"b", 4, 0}, {"c", 5, 0}},
+			t:   []Tokenizer{NewWhitespace(), NewUnique()},
+		},
+		{
+			in: `
+
+hello hello world a    b     c   
+
+x y   
+
+z
+
+
+`,
+			out: []Token{{"hello", 0, 2}, {"world", 2, 2}, {"a", 3, 2}, {"b", 4, 2}, {"c", 5, 2}, {"x", 6, 4}, {"y", 7, 4}, {"z", 8, 6}},
+			t:   []Tokenizer{NewWhitespace(), NewUnique()},
+		},
+
+		{
+			in: `abc
+def`,
+			out: []Token{{"ab", 0, 0}, {"abc", 0, 0}, {"de", 1, 1}, {"def", 1, 1}},
+			t:   []Tokenizer{NewWhitespace(), NewLeftEdge(2), NewUnique()},
+		},
+	}
+	testManyT(t, cases)
 }
 
 func TestCharNgram(t *testing.T) {
@@ -258,10 +317,10 @@ func TestComplex(t *testing.T) {
 		{
 			in:  "hello world hellz",
 			out: []string{"h", "he", "hel", "hello", "w", "wo", "wor", "world", "hellz"},
-			t: []Tokenizer{NewWhitespace(), NewLeftEdge(1), NewUnique(), NewCustom(func(c []string) []string {
-				out := []string{}
+			t: []Tokenizer{NewWhitespace(), NewLeftEdge(1), NewUnique(), NewCustom(func(c []Token) []Token {
+				out := []Token{}
 				for _, v := range c {
-					if len(v) != 4 {
+					if len(v.Text) != 4 {
 						out = append(out, v)
 					}
 				}
