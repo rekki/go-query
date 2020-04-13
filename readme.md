@@ -1,6 +1,6 @@
-## go-query [![Build Status](https://travis-ci.org/rekki/go-query.svg?branch=master)](https://travis-ci.org/rekki/go-query) [![codecov](https://codecov.io/gh/rekki/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/rekki/go-query) [![GoDoc](https://godoc.org/github.com/rekki/go-query?status.svg)](https://godoc.org/github.com/rekki/go-query)
+## go-query simple []int32 query library [![Build Status](https://travis-ci.org/rekki/go-query.svg?branch=master)](https://travis-ci.org/rekki/go-query) [![codecov](https://codecov.io/gh/rekki/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/rekki/go-query) [![GoDoc](https://godoc.org/github.com/rekki/go-query?status.svg)](https://godoc.org/github.com/rekki/go-query)
 
-> simple []int32 query library
+> Blazingly fast query engine
 
 Used to build and execute queries such as:
 
