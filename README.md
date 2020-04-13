@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/rekki/go-query.svg?branch=master)](https://travis-ci.org/rekki/go-query) [![codecov](https://codecov.io/gh/rekki/go-query/branch/master/graph/badge.svg)](https://codecov.io/gh/rekki/go-query) [![GoDoc](https://godoc.org/github.com/rekki/go-query?status.svg)](https://godoc.org/github.com/rekki/go-query)
 
-
 used to build and execute queries such as:
 
 ```
@@ -21,13 +20,15 @@ And(
 - scoring: only idf scode (for now)
 - supported queries: or, and, and_not, dis_max, constant, term
 - `go-query-normalize`: space_between_digits, lowercase, trim, cleanup, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query-normalize?status.svg)](https://godoc.org/github.com/rekki/go-query-normalize)
-- util/tokenize: left edge, custom, charngram, unique, soundex, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query/util/tokenize?status.svg)](https://godoc.org/github.com/rekki/go-query/util/tokenize)
+- `go-query-tokenize`: left edge, custom, charngram, unique, soundex, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query-tokenize?status.svg)](https://godoc.org/github.com/rekki/go-query-tokenize)
 - util/memory index: useful example of how to build more complex search engine with the library [![GoDoc](https://godoc.org/github.com/rekki/go-query/util/index?status.svg)](https://godoc.org/github.com/rekki/go-query/util/index)
 
 ---
+
 # query
+
 --
-    import "github.com/rekki/go-query"
+import "github.com/rekki/go-query"
 
 Package query provides simple query dsl on top of sorted arrays of integers.
 Usually when you have inverted index you endup having something like:
@@ -115,52 +116,56 @@ var ByteOrder = binary.LittleEndian
 ```go
 var TERM_CHUNK_SIZE = 4096
 ```
+
 splits the postings list into chunks that are binary searched and inside each
 chunk linearly searching for next advance()
 
-#### func  And
+#### func And
 
 ```go
 func And(queries ...Query) *andQuery
 ```
+
 Creates AND query
 
-#### func  AndNot
+#### func AndNot
 
 ```go
 func AndNot(not Query, queries ...Query) *andQuery
 ```
+
 Creates AND NOT query
 
-#### func  AppendFileNameTerm
+#### func AppendFileNameTerm
 
 ```go
 func AppendFileNameTerm(fn string, docs []int32) error
 ```
 
-#### func  AppendFilePayload
+#### func AppendFilePayload
 
 ```go
 func AppendFilePayload(f *os.File, size int64, b []byte) error
 ```
 
-#### func  AppendFileTerm
+#### func AppendFileTerm
 
 ```go
 func AppendFileTerm(f *os.File, docs []int32) error
 ```
 
-#### func  Constant
+#### func Constant
 
 ```go
 func Constant(boost float32, q Query) *constantQuery
 ```
 
-#### func  DisMax
+#### func DisMax
 
 ```go
 func DisMax(tieBreaker float32, queries ...Query) *disMaxQuery
 ```
+
 Creates DisMax query, for example if the query is:
 
     DisMax(0.5, "name:amsterdam","name:university","name:free")
@@ -173,11 +178,12 @@ university: 2.1 the score is computed by:
     + score(amsterdam) * tiebreaker = 0.65
     = 2.85
 
-#### func  FileTerm
+#### func FileTerm
 
 ```go
 func FileTerm(totalDocumentsInIndex int, fn string) *fileTerm
 ```
+
 Create new lazy term from stored ByteOrder (by default little endian) encoded
 array of integers
 
@@ -186,28 +192,30 @@ end)
 
 WARNING: you must exhaust the query, otherwise you will leak file descriptors.
 
-#### func  Or
+#### func Or
 
 ```go
 func Or(queries ...Query) *orQuery
 ```
+
 Creates OR query
 
-#### func  PayloadTerm
+#### func PayloadTerm
 
 ```go
 func PayloadTerm(totalDocumentsInIndex int, t string, postings []int32, payload []byte) *payloadTermQuery
 ```
 
-#### func  Term
+#### func Term
 
 ```go
 func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery
 ```
+
 Basic []int32{} that the whole interface works on top score is IDF (not tf*idf,
 just 1*idf, since we dont store the term frequency for now) if you dont know
 totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
-WARNING: the query *can not* be reused WARNING: the query it not thread safe
+WARNING: the query _can not_ be reused WARNING: the query it not thread safe
 
 #### type Payload
 
@@ -219,7 +227,6 @@ type Payload interface {
 	Score() float32
 }
 ```
-
 
 #### type Query
 
@@ -238,7 +245,7 @@ type Query interface {
 ```
 
 Reuse/Concurrency: None of the queries are safe to be re-used. WARNING: the
-query *can not* be reused WARNING: the query it not thread safe
+query _can not_ be reused WARNING: the query it not thread safe
 
 Example Iteration:
 
@@ -248,10 +255,13 @@ Example Iteration:
     	score := q.Score()
     	fmt.Printf("matching %d, score: %f\n", did, score)
     }
+
 ---
+
 # util
+
 --
-    import "github.com/rekki/go-query/util"
+import "github.com/rekki/go-query/util"
 
 Simlpe utils to tokenize and normalize text
 
@@ -289,10 +299,13 @@ Example:
     }
 
 ## Usage
+
 ---
+
 # index
+
 --
-    import "github.com/rekki/go-query/util/index"
+import "github.com/rekki/go-query/util/index"
 
 Illustration of how you can use go-query to build a somewhat functional search
 index Example:
@@ -451,11 +464,12 @@ var SoundexTokenizer = []tokenize.Tokenizer{
 }
 ```
 
-#### func  Parse
+#### func Parse
 
 ```go
 func Parse(input *spec.Query, makeTermQuery func(string, string) iq.Query) (iq.Query, error)
 ```
+
 Take spec.Query object and a makeTermQuery function and produce a parsed query
 Example:
 
@@ -464,11 +478,12 @@ Example:
     	return iq.Term(0, kv, postings[kv])
     })
 
-#### func  QueryFromBytes
+#### func QueryFromBytes
 
 ```go
 func QueryFromBytes(b []byte) (*spec.Query, error)
 ```
+
 somewhat useless method (besides for testing) Example:
 
     query, err := QueryFromBytes([]byte(`{
@@ -488,12 +503,13 @@ somewhat useless method (besides for testing) Example:
     	panic(err)
     }
 
-#### func  QueryFromJson
+#### func QueryFromJson
 
 ```go
 func QueryFromJson(input interface{}) (*spec.Query, error)
 ```
-simple (*slow*) helper method that takes interface{} and converst it to
+
+simple (_slow_) helper method that takes interface{} and converst it to
 spec.Query with jsonpb in case you receive request like request = {"limit":10,
 query: ....}, pass request.query to QueryFromJson and get a query object back
 
@@ -507,44 +523,43 @@ type DirIndex struct {
 }
 ```
 
-
-#### func  NewDirIndex
+#### func NewDirIndex
 
 ```go
 func NewDirIndex(root string, fdCache FileDescriptorCache, perField map[string]*analyzer.Analyzer) *DirIndex
 ```
 
-#### func (*DirIndex) Close
+#### func (\*DirIndex) Close
 
 ```go
 func (d *DirIndex) Close()
 ```
 
-#### func (*DirIndex) Foreach
+#### func (\*DirIndex) Foreach
 
 ```go
 func (d *DirIndex) Foreach(query iq.Query, cb func(int32, float32))
 ```
 
-#### func (*DirIndex) Index
+#### func (\*DirIndex) Index
 
 ```go
 func (d *DirIndex) Index(docs ...DocumentWithID) error
 ```
 
-#### func (*DirIndex) NewTermQuery
+#### func (\*DirIndex) NewTermQuery
 
 ```go
 func (d *DirIndex) NewTermQuery(field string, term string) iq.Query
 ```
 
-#### func (*DirIndex) Parse
+#### func (\*DirIndex) Parse
 
 ```go
 func (d *DirIndex) Parse(input *spec.Query) (iq.Query, error)
 ```
 
-#### func (*DirIndex) Terms
+#### func (\*DirIndex) Terms
 
 ```go
 func (d *DirIndex) Terms(field string, term string) []iq.Query
@@ -585,7 +600,6 @@ type DocumentWithID interface {
 }
 ```
 
-
 #### type FDCache
 
 ```go
@@ -594,20 +608,19 @@ type FDCache struct {
 }
 ```
 
-
-#### func  NewFDCache
+#### func NewFDCache
 
 ```go
 func NewFDCache(n int) *FDCache
 ```
 
-#### func (*FDCache) Close
+#### func (\*FDCache) Close
 
 ```go
 func (x *FDCache) Close()
 ```
 
-#### func (*FDCache) Use
+#### func (\*FDCache) Use
 
 ```go
 func (x *FDCache) Use(fn string, createFile func(fn string) (*os.File, error), cb func(*os.File) error) error
@@ -622,7 +635,6 @@ type FileDescriptorCache interface {
 }
 ```
 
-
 #### type Hit
 
 ```go
@@ -633,7 +645,6 @@ type Hit struct {
 }
 ```
 
-
 #### type MemOnlyIndex
 
 ```go
@@ -642,20 +653,21 @@ type MemOnlyIndex struct {
 }
 ```
 
-
-#### func  NewMemOnlyIndex
+#### func NewMemOnlyIndex
 
 ```go
 func NewMemOnlyIndex(perField map[string]*analyzer.Analyzer) *MemOnlyIndex
 ```
+
 create new in-memory index with the specified perField analyzer by default
 DefaultAnalyzer is used
 
-#### func (*MemOnlyIndex) Foreach
+#### func (\*MemOnlyIndex) Foreach
 
 ```go
 func (m *MemOnlyIndex) Foreach(query iq.Query, cb func(int32, float32, Document))
 ```
+
 Foreach matching document Example:
 
     query := iq.And(
@@ -667,18 +679,20 @@ Foreach matching document Example:
     	log.Printf("%v matching with score %f", city, score)
     })
 
-#### func (*MemOnlyIndex) Index
+#### func (\*MemOnlyIndex) Index
 
 ```go
 func (m *MemOnlyIndex) Index(docs ...Document)
 ```
+
 index a bunch of documents
 
-#### func (*MemOnlyIndex) Parse
+#### func (\*MemOnlyIndex) Parse
 
 ```go
 func (m *MemOnlyIndex) Parse(input *spec.Query) (iq.Query, error)
 ```
+
 Parse dsl input into an query object Example:
 
     query, err := QueryFromBytes([]byte(`{
@@ -717,22 +731,24 @@ Parse dsl input into an query object Example:
       ]
     }
 
-#### func (*MemOnlyIndex) Terms
+#### func (\*MemOnlyIndex) Terms
 
 ```go
 func (m *MemOnlyIndex) Terms(field string, term string) []iq.Query
 ```
+
 Generate array of queries from the tokenized term for this field, using the
 perField analyzer
 
-#### func (*MemOnlyIndex) TopN
+#### func (\*MemOnlyIndex) TopN
 
 ```go
 func (m *MemOnlyIndex) TopN(limit int, query iq.Query, cb func(int32, float32, Document) float32) *SearchResult
 ```
+
 TopN documents The following texample gets top5 results and also check add 100
 to the score of cities that have NL in the score. usually the score of your
-search is some linear combination of f(a*text + b*popularity + c*context..)
+search is some linear combination of f(a*text + b*popularity + c\*context..)
 
 Example:
 
@@ -766,7 +782,7 @@ the SearchResult structure looks like
       ]
     }
 
-If the callback is null, then the original score is used (1*idf at the moment)
+If the callback is null, then the original score is used (1\*idf at the moment)
 
 #### type SearchResult
 
