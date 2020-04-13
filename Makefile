@@ -16,11 +16,6 @@ coverage:
 	$(GO) test -race -coverprofile=coverage.txt -covermode=atomic $(GO_FILES)
 .PHONY: coverage
 
-doc: 
-	@echo "[+] doc code"
-	@scripts/doc.sh 
-.PHONY: doc
-
 lint: vet golangci-lint revive sec
 .PHONY: lint
 
