@@ -84,8 +84,8 @@ package index
 
 import (
 	norm "github.com/rekki/go-query-normalize"
+	tokenize "github.com/rekki/go-query-tokenize"
 	"github.com/rekki/go-query/util/analyzer"
-	"github.com/rekki/go-query/util/tokenize"
 )
 
 // Export this interface on the documents you want indexed

@@ -64,8 +64,6 @@ func TestUnique(t *testing.T) {
 	q := iq.Or(m.Terms("names", "sofia")...)
 
 	m.Foreach(q, func(did int32, score float32, doc Document) {
-		city := doc.(*ExampleCity)
-		log.Printf("%v matching with score %f", city, score)
 		n++
 	})
 	if n != 1 {

@@ -7,7 +7,7 @@
 //  	"fmt"
 //
 //  	n "github.com/rekki/go-query-normalize"
-//  	t "github.com/rekki/go-query/util/tokenize"
+//  	t "github.com/rekki/go-query-tokenize"
 //  )
 //
 //  func main() {

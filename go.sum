@@ -169,9 +169,10 @@ github.com/prometheus/procfs v0.0.0-20190507164030-5867b95ac084/go.mod h1:TjEm7z
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/quasilyte/go-consistent v0.0.0-20190521200055-c6f3937de18c/go.mod h1:5STLWrekHfjyYwxBRVRXNOSewLJ3PWfDJd1VyTS21fI=
 github.com/rekki/go-query v0.0.0-20200413082721-f41973a93455/go.mod h1:KyRq5f+3EpORUanjTC3GvwWytso/UQ6LLk3exdX7gFM=
-github.com/rekki/go-query-normalize v0.0.0-20200413123344-bdee18fbd1aa h1:8j8mMrerchpSwBUldyrguvd5hUamk/ZlcJ8HxfjtQPQ=
 github.com/rekki/go-query-normalize v0.0.0-20200413193040-74b6001ad75f h1:vqJE/57YDMxPLvJK/KVpvfdKTsquGSnN2z0f58zyuZ0=
 github.com/rekki/go-query-normalize v0.0.0-20200413193040-74b6001ad75f/go.mod h1:avG0LKWd4OF1JEcNTH4WwAlf/WrvL6kIqzch8hlMDXo=
+github.com/rekki/go-query-tokenize v0.0.0-20200413200010-8e9129b70907 h1:jpIthl1SF0JT7HlLeNkKeuSx2nhvQy3iY6bZGr8xX18=
+github.com/rekki/go-query-tokenize v0.0.0-20200413200010-8e9129b70907/go.mod h1:+nIhyo/9RY68w0wkDROWgZbAgj2SvMNhSyDLBXeAWvw=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=

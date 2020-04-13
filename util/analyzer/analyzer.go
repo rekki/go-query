@@ -2,7 +2,7 @@ package analyzer
 
 import (
 	norm "github.com/rekki/go-query-normalize"
-	"github.com/rekki/go-query/util/tokenize"
+	tokenize "github.com/rekki/go-query-tokenize"
 )
 
 type Analyzer struct {
