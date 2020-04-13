@@ -74,69 +74,6 @@ func eqF(t *testing.T, a, b []float32) {
 	}
 }
 
-func BenchmarkNext1000(b *testing.B) {
-	x := postingsList(1000)
-
-	for n := 0; n < b.N; n++ {
-		sum := int32(0)
-		q := Term(10, "", x)
-		for q.Next() != NO_MORE {
-			sum += q.GetDocId()
-		}
-	}
-}
-
-func BenchmarkOr1000(b *testing.B) {
-	x := postingsList(1000)
-	y := postingsList(1000)
-
-	for n := 0; n < b.N; n++ {
-		sum := int32(0)
-		q := Or(
-			Term(10, "x", x),
-			Term(10, "y", y),
-		)
-
-		for q.Next() != NO_MORE {
-			sum += q.GetDocId()
-		}
-	}
-}
-
-func BenchmarkAnd1000(b *testing.B) {
-	x := postingsList(1000000)
-	y := postingsList(1000)
-
-	for n := 0; n < b.N; n++ {
-		sum := int32(0)
-		q := And(
-			Term(10, "x", x),
-			Term(10, "y", y),
-		)
-
-		for q.Next() != NO_MORE {
-			sum += q.GetDocId()
-		}
-	}
-}
-
-func BenchmarkAnd1000000(b *testing.B) {
-	x := postingsList(1000000)
-	y := postingsList(10000)
-
-	for n := 0; n < b.N; n++ {
-		sum := int32(0)
-		q := And(
-			Term(10, "x", x),
-			Term(10, "y", y),
-		)
-
-		for q.Next() != NO_MORE {
-			sum += q.GetDocId()
-		}
-	}
-}
-
 func TestBoost(t *testing.T) {
 	if queryScores(
 		Term(6, "x", []int32{1, 2, 3}).SetBoost(100),
