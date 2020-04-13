@@ -19,9 +19,9 @@ And(
 
 - scoring: only `idf` score (for now)
 - supported queries: `or`, `and`, `and_not`, `dis_max`, `constant`, `term`
-- `go-query-normalize`: space_between_digits, lowercase, trim, cleanup, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query-normalize?status.svg)](https://godoc.org/github.com/rekki/go-query-normalize)
-- `go-query-tokenize`: left edge, custom, charngram, unique, soundex, ... [![GoDoc](https://godoc.org/github.com/rekki/go-query-tokenize?status.svg)](https://godoc.org/github.com/rekki/go-query-tokenize)
-- `go-query-index`: useful example of how to build more complex search engine with the library [![GoDoc](https://godoc.org/github.com/rekki/go-query-index?status.svg)](https://godoc.org/github.com/rekki/go-query-index)
+- [`go-query-normalize`](https://github.com/rekki/go-query-normalize): space_between_digits, lowercase, trim, cleanup, etc
+- [`go-query-tokenize`](https://github.com/rekki/go-query-tokenize): left edge, custom, charngram, unique, soundex etc
+- [`go-query-index`](https://github.com/rekki/go-query-index): useful example of how to build more complex search engine with the library
 
 ---
 
