@@ -6,8 +6,18 @@ install:
 	$(GO) get -v -t $(GO_FILES)
 .PHONY: install
 
+test:
+	@echo "[+] test"
+	$(GO) test -v -race $(GO_FILES)
+.PHONY: test
+
+coverage:
+	@echo "[+] test with coverage"
+	$(GO) test -race -coverprofile=coverage.txt -covermode=atomic $(GO_FILES)
+.PHONY: coverage
+
 doc: 
-	@echo "doc code"
+	@echo "[+] doc code"
 	@scripts/doc.sh 
 .PHONY: doc
 
@@ -15,7 +25,7 @@ lint: vet golangci-lint revive sec
 .PHONY: lint
 
 revive: scripts/bin/revive
-	@echo "lint via revive"
+	@echo "[+] lint via revive"
 	@scripts/bin/revive \
 		-formatter stylish \
 		-config ./scripts/configs/revive.toml \
@@ -24,14 +34,14 @@ revive: scripts/bin/revive
 .PHONY: revive
 
 golangci-lint: scripts/bin/golangci-lint
-	@echo "lint via golangci-lint"
+	@echo "[+] lint via golangci-lint"
 	@scripts/bin/golangci-lint run \
 		--config ./scripts/configs/.golangci.yml \
 		$(GO_FILES)
 .PHONY: golangci-lint
 
 sec: scripts/bin/gosec
-	@echo "lint via gosec"
+	@echo "[+] lint via gosec"
 	@scripts/bin/gosec -quiet \
 		-exclude=G104,G107,G108,G201,G202,G204,G301,G304,G401,G402,G501 \
 		-conf=./scripts/configs/gosec.json \
@@ -39,7 +49,7 @@ sec: scripts/bin/gosec
 .PHONY: sec
 
 vet:
-	@echo "lint via go vet"
+	@echo "[+] lint via go vet"
 	@$(GO) vet $(GO_FILES)
 .PHONY: vet
 
