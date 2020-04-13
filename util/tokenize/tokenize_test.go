@@ -33,7 +33,7 @@ func testMany(t *testing.T, cases []TestCase) {
 
 func TestUnique(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "hello hello world",
 			out: []string{"hello", "world"},
 			t:   []Tokenizer{NewWhitespace(), NewUnique()},
@@ -44,37 +44,37 @@ func TestUnique(t *testing.T) {
 
 func TestCharNgram(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "rome",
 			out: []string{"ro", "om", "me"},
 			t:   []Tokenizer{NewCharNgram(2)},
 		},
-		TestCase{
+		{
 			in:  "rome",
 			out: []string{"$ro", "om", "me$"},
 			t:   []Tokenizer{NewCharNgram(2), NewSurround("$")},
 		},
-		TestCase{
+		{
 			in:  "rome",
 			out: []string{"rom", "ome"},
 			t:   []Tokenizer{NewCharNgram(3)},
 		},
-		TestCase{
+		{
 			in:  "ro",
 			out: []string{"ro"},
 			t:   []Tokenizer{NewCharNgram(3)},
 		},
-		TestCase{
+		{
 			in:  "",
 			out: []string{""},
 			t:   []Tokenizer{NewCharNgram(3)},
 		},
-		TestCase{
+		{
 			in:  "rome",
 			out: []string{"r", "o", "m", "e"},
 			t:   []Tokenizer{NewCharNgram(1)},
 		},
-		TestCase{
+		{
 			in:  "rome",
 			out: []string{"rome"},
 			t:   []Tokenizer{NewCharNgram(4)},
@@ -85,46 +85,46 @@ func TestCharNgram(t *testing.T) {
 
 func TestShingles(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "",
 			out: []string{""},
 			t:   []Tokenizer{NewShingles(3)},
 		},
-		TestCase{
+		{
 			in:  "new york",
 			out: []string{"new", "newyork", "york"},
 			t:   []Tokenizer{NewWhitespace(), NewShingles(2)},
 		},
-		TestCase{
+		{
 			in:  "new york",
 			out: []string{"new", "york"},
 			t:   []Tokenizer{NewWhitespace(), NewShingles(3)},
 		},
-		TestCase{
+		{
 			in:  "new york",
 			out: []string{"new", "york"},
 			t:   []Tokenizer{NewWhitespace(), NewShingles(1)},
 		},
-		TestCase{
+		{
 			in:  "new york city",
 			out: []string{"new", "newyork", "york", "yorkcity", "city"},
 			t:   []Tokenizer{NewWhitespace(), NewShingles(2)},
 		},
-		TestCase{
+		{
 			in: "new york city",
 			out: []string{
 				"new", "newyorkcity", "york", "city",
 			},
 			t: []Tokenizer{NewWhitespace(), NewShingles(3)},
 		},
-		TestCase{
+		{
 			in: "new york city killa",
 			out: []string{
 				"new", "newyorkcity", "york", "yorkcitykilla", "city", "killa",
 			},
 			t: []Tokenizer{NewWhitespace(), NewShingles(3)},
 		},
-		TestCase{
+		{
 			in: "new york city killa gorilla",
 			out: []string{
 				"new", "newyorkcity", "york", "yorkcitykilla", "city", "citykillagorilla", "killa", "gorilla",
@@ -137,17 +137,17 @@ func TestShingles(t *testing.T) {
 
 func TestSurround(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "hello abc world",
 			out: []string{"$hello", "abc", "world$"},
 			t:   []Tokenizer{NewWhitespace(), NewSurround("$"), NewUnique()},
 		},
-		TestCase{
+		{
 			in:  "",
 			out: []string{},
 			t:   []Tokenizer{NewWhitespace(), NewSurround("$"), NewUnique()},
 		},
-		TestCase{
+		{
 			in:  "a",
 			out: []string{"$a$"},
 			t:   []Tokenizer{NewWhitespace(), NewSurround("$"), NewUnique()},
@@ -158,12 +158,12 @@ func TestSurround(t *testing.T) {
 
 func TestSoundex(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "hello hallo abc world warld",
 			out: []string{"H400", "H400", "A120", "W643", "W643"},
 			t:   []Tokenizer{NewWhitespace(), NewSoundex()},
 		},
-		TestCase{
+		{
 			in:  "",
 			out: []string{},
 			t:   []Tokenizer{NewWhitespace(), NewSoundex()},
@@ -175,7 +175,7 @@ func TestSoundex(t *testing.T) {
 
 func TestNoop(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "hello hallo abc world warld",
 			out: []string{"hello hallo abc world warld"},
 			t:   []Tokenizer{NewNoop()},
@@ -187,7 +187,7 @@ func TestNoop(t *testing.T) {
 
 func TestEmpty(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "hello hallo abc world warld",
 			out: []string{},
 			t:   []Tokenizer{},
@@ -199,17 +199,17 @@ func TestEmpty(t *testing.T) {
 
 func TestLegtEdge(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "hello",
 			out: []string{"he", "hel", "hell", "hello"},
 			t:   []Tokenizer{NewLeftEdge(2)},
 		},
-		TestCase{
+		{
 			in:  "hello",
 			out: []string{"hello"},
 			t:   []Tokenizer{NewLeftEdge(20)},
 		},
-		TestCase{
+		{
 			in:  "hello",
 			out: []string{"h", "he", "hel", "hell", "hello"},
 			t:   []Tokenizer{NewLeftEdge(1)},
@@ -220,27 +220,27 @@ func TestLegtEdge(t *testing.T) {
 
 func TestWhitespace(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "hello",
 			out: []string{"hello"},
 			t:   []Tokenizer{NewWhitespace()},
 		},
-		TestCase{
+		{
 			in:  "",
 			out: []string{},
 			t:   []Tokenizer{NewWhitespace()},
 		},
-		TestCase{
+		{
 			in:  "     ",
 			out: []string{},
 			t:   []Tokenizer{NewWhitespace()},
 		},
-		TestCase{
+		{
 			in:  "     a     b",
 			out: []string{"a", "b"},
 			t:   []Tokenizer{NewWhitespace()},
 		},
-		TestCase{
+		{
 			in: ` a
 b
 c	g
@@ -255,7 +255,7 @@ d  f
 
 func TestComplex(t *testing.T) {
 	cases := []TestCase{
-		TestCase{
+		{
 			in:  "hello world hellz",
 			out: []string{"h", "he", "hel", "hello", "w", "wo", "wor", "world", "hellz"},
 			t: []Tokenizer{NewWhitespace(), NewLeftEdge(1), NewUnique(), NewCustom(func(c []string) []string {

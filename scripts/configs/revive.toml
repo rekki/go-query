@@ -1,0 +1,22 @@
+ignoreGeneratedHeader = false
+severity = "error"
+confidence = 0.8
+errorCode = 1
+
+[rule.context-as-argument]
+[rule.error-return]
+[rule.range]
+[rule.superfluous-else]
+[rule.modifies-parameter]
+[rule.indent-error-flow]
+[rule.error-strings]
+[rule.error-naming]
+[rule.dot-imports]
+[rule.receiver-naming]
+[rule.blank-imports]
+
+# Those are probably should be enabled at some point
+# [rule.package-comments]
+# [rule.exported]
+# [rule.unexported-return]
+# [rule.var-naming]

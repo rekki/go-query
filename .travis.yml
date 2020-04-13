@@ -5,10 +5,10 @@ go:
   - tip
 
 before_install:
-  - go get -t -v ./...
+  - make install
 
 script:
-  - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+  - make coverage
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

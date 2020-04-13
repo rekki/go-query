@@ -58,7 +58,7 @@ func (q *orQuery) Score() float32 {
 			score += s.Score()
 		}
 	}
-	return float32(score) * q.boost
+	return score * q.boost
 }
 
 func (q *orQuery) Advance(target int32) int32 {
