@@ -38,7 +38,7 @@ golangci-lint: scripts/bin/golangci-lint
 sec: scripts/bin/gosec
 	@echo "[+] lint via gosec"
 	@scripts/bin/gosec -quiet \
-		-exclude=G104,G107,G108,G201,G202,G204,G301,G304,G401,G402,G501 \
+		-exclude=G104,G107,G108,G201,G202,G204,G301,G304,G307,G401,G402,G501 \
 		-conf=./scripts/configs/gosec.json \
 		$(GO_FILES)
 .PHONY: sec
