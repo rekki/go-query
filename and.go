@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type andQuery struct {
+type AndQuery struct {
 	queries []Query
 	not     Query
 	docId   int32
@@ -15,13 +15,13 @@ type andQuery struct {
 }
 
 // Creates AND NOT query
-func AndNot(not Query, queries ...Query) *andQuery {
+func AndNot(not Query, queries ...Query) *AndQuery {
 	return And(queries...).SetNot(not)
 }
 
 // Creates AND query
-func And(queries ...Query) *andQuery {
-	a := &andQuery{
+func And(queries ...Query) *AndQuery {
+	a := &AndQuery{
 		queries: queries,
 		docId:   NOT_READY,
 		boost:   1,
@@ -30,20 +30,20 @@ func And(queries ...Query) *andQuery {
 	return a
 }
 
-func (q *andQuery) AddSubQuery(sub Query) *andQuery {
+func (q *AndQuery) AddSubQuery(sub Query) *AndQuery {
 	q.queries = append(q.queries, sub)
 	q.sortSubqueries()
 	return q
 }
 
-func (q *andQuery) Cost() int {
+func (q *AndQuery) Cost() int {
 	if len(q.queries) == 0 {
 		return 0
 	}
 	return q.leading.Cost()
 }
 
-func (q *andQuery) sortSubqueries() {
+func (q *AndQuery) sortSubqueries() {
 	sort.Slice(q.queries, func(i, j int) bool {
 		return q.queries[i].Cost() < q.queries[j].Cost()
 	})
@@ -52,21 +52,21 @@ func (q *andQuery) sortSubqueries() {
 	}
 }
 
-func (q *andQuery) GetDocId() int32 {
+func (q *AndQuery) GetDocId() int32 {
 	return q.docId
 }
 
-func (q *andQuery) SetNot(not Query) *andQuery {
+func (q *AndQuery) SetNot(not Query) *AndQuery {
 	q.not = not
 	return q
 }
 
-func (q *andQuery) SetBoost(b float32) Query {
+func (q *AndQuery) SetBoost(b float32) Query {
 	q.boost = b
 	return q
 }
 
-func (q *andQuery) PayloadDecode(p Payload) {
+func (q *AndQuery) PayloadDecode(p Payload) {
 	p.Push()
 	defer p.Pop()
 
@@ -75,7 +75,7 @@ func (q *andQuery) PayloadDecode(p Payload) {
 	}
 }
 
-func (q *andQuery) Score() float32 {
+func (q *AndQuery) Score() float32 {
 	score := float32(0)
 	n := len(q.queries)
 
@@ -85,7 +85,7 @@ func (q *andQuery) Score() float32 {
 	return score * q.boost
 }
 
-func (q *andQuery) nextAndedDoc(target int32) int32 {
+func (q *AndQuery) nextAndedDoc(target int32) int32 {
 	start := 1
 	n := len(q.queries)
 AGAIN:
@@ -119,7 +119,7 @@ AGAIN:
 	}
 }
 
-func (q *andQuery) String() string {
+func (q *AndQuery) String() string {
 	out := []string{}
 	for _, v := range q.queries {
 		out = append(out, v.String())
@@ -131,7 +131,7 @@ func (q *andQuery) String() string {
 	return "{" + s + "}"
 }
 
-func (q *andQuery) Advance(target int32) int32 {
+func (q *AndQuery) Advance(target int32) int32 {
 	if len(q.queries) == 0 {
 		q.docId = NO_MORE
 		return NO_MORE
@@ -140,7 +140,7 @@ func (q *andQuery) Advance(target int32) int32 {
 	return q.nextAndedDoc(q.leading.Advance(target))
 }
 
-func (q *andQuery) Next() int32 {
+func (q *AndQuery) Next() int32 {
 	if len(q.queries) == 0 {
 		q.docId = NO_MORE
 		return NO_MORE

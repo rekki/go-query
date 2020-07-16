@@ -2,7 +2,7 @@ package query
 
 import "strings"
 
-type disMaxQuery struct {
+type DisMaxQuery struct {
 	queries    []Query
 	scores     []float32
 	docId      int32
@@ -18,8 +18,8 @@ type disMaxQuery struct {
 //    + score(free) * tiebreaker = 0.1
 //    + score(amsterdam) * tiebreaker = 0.65
 //    = 2.85
-func DisMax(tieBreaker float32, queries ...Query) *disMaxQuery {
-	return &disMaxQuery{
+func DisMax(tieBreaker float32, queries ...Query) *DisMaxQuery {
+	return &DisMaxQuery{
 		queries:    queries,
 		docId:      NOT_READY,
 		tieBreaker: tieBreaker,
@@ -28,13 +28,13 @@ func DisMax(tieBreaker float32, queries ...Query) *disMaxQuery {
 	}
 }
 
-func (q *disMaxQuery) AddSubQuery(sub Query) *disMaxQuery {
+func (q *DisMaxQuery) AddSubQuery(sub Query) *DisMaxQuery {
 	q.queries = append(q.queries, sub)
 	q.scores = make([]float32, len(q.queries))
 	return q
 }
 
-func (q *disMaxQuery) Cost() int {
+func (q *DisMaxQuery) Cost() int {
 	//XXX: optimistic, assume sets greatly overlap, which of course is not always true
 	max := 0
 	for _, sub := range q.queries {
@@ -46,11 +46,11 @@ func (q *disMaxQuery) Cost() int {
 	return max
 }
 
-func (q *disMaxQuery) GetDocId() int32 {
+func (q *DisMaxQuery) GetDocId() int32 {
 	return q.docId
 }
 
-func (q *disMaxQuery) Score() float32 {
+func (q *DisMaxQuery) Score() float32 {
 	n := len(q.queries)
 	sum := float32(0)
 	max := float32(0)
@@ -68,7 +68,7 @@ func (q *disMaxQuery) Score() float32 {
 	return (max + ((sum - max) * q.tieBreaker)) * q.boost
 }
 
-func (q *disMaxQuery) Advance(target int32) int32 {
+func (q *DisMaxQuery) Advance(target int32) int32 {
 	newDoc := NO_MORE
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
@@ -86,7 +86,7 @@ func (q *disMaxQuery) Advance(target int32) int32 {
 	return q.docId
 }
 
-func (q *disMaxQuery) Next() int32 {
+func (q *DisMaxQuery) Next() int32 {
 	newDoc := NO_MORE
 	n := len(q.queries)
 	for i := 0; i < n; i++ {
@@ -104,7 +104,7 @@ func (q *disMaxQuery) Next() int32 {
 	return newDoc
 }
 
-func (q *disMaxQuery) String() string {
+func (q *DisMaxQuery) String() string {
 	out := []string{}
 	for _, v := range q.queries {
 		out = append(out, v.String())
@@ -112,11 +112,11 @@ func (q *disMaxQuery) String() string {
 	return "{" + strings.Join(out, " DisMax ") + "}"
 }
 
-func (q *disMaxQuery) SetBoost(b float32) Query {
+func (q *DisMaxQuery) SetBoost(b float32) Query {
 	q.boost = b
 	return q
 }
 
-func (q *disMaxQuery) PayloadDecode(p Payload) {
+func (q *DisMaxQuery) PayloadDecode(p Payload) {
 	panic("unsupported")
 }

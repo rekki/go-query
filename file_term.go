@@ -7,7 +7,7 @@ import (
 
 var ByteOrder = binary.LittleEndian
 
-type fileTerm struct {
+type FileTermData struct {
 	cursor   int32
 	postings *os.File
 	n        int32
@@ -23,11 +23,11 @@ type fileTerm struct {
 // The file will be closed automatically when the query is exhausted (reaches the end)
 //
 // WARNING: you must exhaust the query, otherwise you will leak file descriptors.
-func FileTerm(totalDocumentsInIndex int, fn string) *fileTerm {
+func FileTerm(totalDocumentsInIndex int, fn string) *FileTermData {
 	file, err := os.OpenFile(fn, os.O_RDONLY, 0600)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &fileTerm{
+			return &FileTermData{
 				cursor:   0,
 				postings: nil,
 				n:        0,
@@ -46,7 +46,7 @@ func FileTerm(totalDocumentsInIndex int, fn string) *fileTerm {
 	}
 
 	n := int32(s.Size() / 4)
-	return &fileTerm{
+	return &FileTermData{
 		cursor:   0,
 		postings: file,
 		n:        n,
@@ -56,20 +56,20 @@ func FileTerm(totalDocumentsInIndex int, fn string) *fileTerm {
 	}
 }
 
-func (t *fileTerm) GetDocId() int32 {
+func (t *FileTermData) GetDocId() int32 {
 	return t.docId
 }
 
-func (t *fileTerm) SetBoost(b float32) Query {
+func (t *FileTermData) SetBoost(b float32) Query {
 	t.boost = b
 	return t
 }
 
-func (t *fileTerm) Cost() int {
+func (t *FileTermData) Cost() int {
 	return int(t.n)
 }
 
-func (t *fileTerm) String() string {
+func (t *FileTermData) String() string {
 	s, err := t.postings.Stat()
 	if err != nil {
 		panic(err)
@@ -77,11 +77,11 @@ func (t *fileTerm) String() string {
 	return s.Name()
 }
 
-func (t *fileTerm) Score() float32 {
+func (t *FileTermData) Score() float32 {
 	return t.idf * t.boost
 }
 
-func (t *fileTerm) getAt(idx int32) uint32 {
+func (t *FileTermData) getAt(idx int32) uint32 {
 	b := []byte{0, 0, 0, 0}
 	_, err := t.postings.ReadAt(b, int64(idx*4))
 	if err != nil {
@@ -89,13 +89,13 @@ func (t *fileTerm) getAt(idx int32) uint32 {
 	}
 	return ByteOrder.Uint32(b)
 }
-func (t *fileTerm) Close() {
+func (t *FileTermData) Close() {
 	if !t.closed {
 		t.postings.Close()
 		t.closed = true
 	}
 }
-func (t *fileTerm) Advance(target int32) int32 {
+func (t *FileTermData) Advance(target int32) int32 {
 	if t.docId == NO_MORE || t.docId == target || target == NO_MORE {
 		t.docId = target
 		t.Close()
@@ -122,7 +122,7 @@ func (t *fileTerm) Advance(target int32) int32 {
 	return t.move(start)
 }
 
-func (t *fileTerm) move(to int32) int32 {
+func (t *FileTermData) move(to int32) int32 {
 	t.cursor = to
 	if t.cursor >= t.n {
 		t.Close()
@@ -133,14 +133,14 @@ func (t *fileTerm) move(to int32) int32 {
 	return t.docId
 }
 
-func (t *fileTerm) Next() int32 {
+func (t *FileTermData) Next() int32 {
 	if t.docId != NOT_READY {
 		t.cursor++
 	}
 	return t.move(t.cursor)
 }
 
-func (t *fileTerm) PayloadDecode(p Payload) {
+func (t *FileTermData) PayloadDecode(p Payload) {
 	panic("unsupported")
 }
 

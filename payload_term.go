@@ -4,49 +4,49 @@ import (
 	"fmt"
 )
 
-type payloadTermQuery struct {
-	term    *termQuery
+type PayloadTermQuery struct {
+	term    *TermQuery
 	payload []byte
 }
 
-func PayloadTerm(totalDocumentsInIndex int, t string, postings []int32, payload []byte) *payloadTermQuery {
+func PayloadTerm(totalDocumentsInIndex int, t string, postings []int32, payload []byte) *PayloadTermQuery {
 	term := Term(totalDocumentsInIndex, t, postings)
-	return &payloadTermQuery{
+	return &PayloadTermQuery{
 		term:    term,
 		payload: payload,
 	}
 }
 
-func (t *payloadTermQuery) GetDocId() int32 {
+func (t *PayloadTermQuery) GetDocId() int32 {
 	return t.term.docId
 }
 
-func (t *payloadTermQuery) Cost() int {
+func (t *PayloadTermQuery) Cost() int {
 	return len(t.term.postings) - t.term.cursor
 }
 
-func (t *payloadTermQuery) String() string {
+func (t *PayloadTermQuery) String() string {
 	return fmt.Sprintf("p_%s(%d)/%.2f", t.term.term, len(t.term.postings), t.term.idf)
 }
 
-func (t *payloadTermQuery) Score() float32 {
+func (t *PayloadTermQuery) Score() float32 {
 	return t.term.Score()
 }
 
-func (t *payloadTermQuery) Advance(target int32) int32 {
+func (t *PayloadTermQuery) Advance(target int32) int32 {
 	return t.term.Advance(target)
 }
 
-func (t *payloadTermQuery) Next() int32 {
+func (t *PayloadTermQuery) Next() int32 {
 	return t.term.Next()
 }
 
-func (t *payloadTermQuery) SetBoost(b float32) Query {
+func (t *PayloadTermQuery) SetBoost(b float32) Query {
 	t.term.SetBoost(b)
 	return t
 }
 
-func (t *payloadTermQuery) PayloadDecode(p Payload) {
+func (t *PayloadTermQuery) PayloadDecode(p Payload) {
 	p.Push()
 	defer p.Pop()
 
