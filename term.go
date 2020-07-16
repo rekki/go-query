@@ -11,7 +11,7 @@ type block struct {
 	maxIdx int
 }
 
-type termQuery struct {
+type TermQuery struct {
 	docId             int32
 	cursor            int
 	postings          []int32
@@ -38,8 +38,8 @@ var TERM_CHUNK_SIZE = 4096
 // if you dont know totalDocumentsInIndex, which could be the case sometimes, pass any constant > 0
 // WARNING: the query *can not* be reused
 // WARNING: the query it not thread safe
-func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery {
-	q := &termQuery{
+func Term(totalDocumentsInIndex int, t string, postings []int32) *TermQuery {
+	q := &TermQuery{
 		term:         t,
 		cursor:       -1,
 		postings:     postings,
@@ -74,23 +74,23 @@ func Term(totalDocumentsInIndex int, t string, postings []int32) *termQuery {
 	return q
 }
 
-func (t *termQuery) GetDocId() int32 {
+func (t *TermQuery) GetDocId() int32 {
 	return t.docId
 }
 
-func (t *termQuery) Cost() int {
+func (t *TermQuery) Cost() int {
 	return len(t.postings) - t.cursor
 }
 
-func (t *termQuery) String() string {
+func (t *TermQuery) String() string {
 	return fmt.Sprintf("%s/%.2f", t.term, t.idf)
 }
 
-func (t *termQuery) Score() float32 {
+func (t *TermQuery) Score() float32 {
 	return t.idf * t.boost
 }
 
-func (t *termQuery) findBlock(target int32) int32 {
+func (t *TermQuery) findBlock(target int32) int32 {
 	if len(t.blocks) == 0 {
 		return NO_MORE
 	}
@@ -120,7 +120,7 @@ func (t *termQuery) findBlock(target int32) int32 {
 	return NO_MORE
 }
 
-func (t *termQuery) Advance(target int32) int32 {
+func (t *TermQuery) Advance(target int32) int32 {
 	if target > t.currentBlock.maxDoc {
 		if t.findBlock(target) == NO_MORE {
 			t.docId = NO_MORE
@@ -147,7 +147,7 @@ func (t *termQuery) Advance(target int32) int32 {
 	return t.docId
 }
 
-func (t *termQuery) Next() int32 {
+func (t *TermQuery) Next() int32 {
 	t.cursor++
 	if t.cursor >= len(t.postings) {
 		t.docId = NO_MORE
@@ -157,11 +157,11 @@ func (t *termQuery) Next() int32 {
 	return t.docId
 }
 
-func (t *termQuery) SetBoost(b float32) Query {
+func (t *TermQuery) SetBoost(b float32) Query {
 	t.boost = b
 	return t
 }
 
-func (t *termQuery) PayloadDecode(p Payload) {
+func (t *TermQuery) PayloadDecode(p Payload) {
 	panic("unsupported")
 }
