@@ -144,6 +144,10 @@ func (t *FileTermData) PayloadDecode(p Payload) {
 	panic("unsupported")
 }
 
+func (t *FileTermData) AddSubQuery(Query) Query {
+	panic("unsupported")
+}
+
 func AppendFileNameTerm(fn string, docs []int32) error {
 	f, err := os.OpenFile(fn, os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {

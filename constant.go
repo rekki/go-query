@@ -46,3 +46,7 @@ func (q *ConstantQuery) SetBoost(b float32) Query {
 func (q *ConstantQuery) PayloadDecode(p Payload) {
 	panic("unsupported")
 }
+
+func (q *ConstantQuery) AddSubQuery(Query) Query {
+	panic("unsupported")
+}
