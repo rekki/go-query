@@ -52,3 +52,7 @@ func (t *PayloadTermQuery) PayloadDecode(p Payload) {
 
 	p.Consume(t.term.docId, t.term.cursor, t.payload)
 }
+
+func (t *PayloadTermQuery) AddSubQuery(Query) Query {
+	panic("unsupported")
+}

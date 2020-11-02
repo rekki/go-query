@@ -31,6 +31,7 @@ type Query interface {
 	SetBoost(float32) Query
 	Cost() int
 	String() string
+	AddSubQuery(Query) Query
 
 	PayloadDecode(p Payload)
 }

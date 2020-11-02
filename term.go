@@ -165,3 +165,7 @@ func (t *TermQuery) SetBoost(b float32) Query {
 func (t *TermQuery) PayloadDecode(p Payload) {
 	panic("unsupported")
 }
+
+func (t *TermQuery) AddSubQuery(Query) Query {
+	panic("unsupported")
+}

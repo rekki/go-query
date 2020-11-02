@@ -28,7 +28,7 @@ func DisMax(tieBreaker float32, queries ...Query) *DisMaxQuery {
 	}
 }
 
-func (q *DisMaxQuery) AddSubQuery(sub Query) *DisMaxQuery {
+func (q *DisMaxQuery) AddSubQuery(sub Query) Query {
 	q.queries = append(q.queries, sub)
 	q.scores = make([]float32, len(q.queries))
 	return q

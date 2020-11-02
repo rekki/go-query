@@ -17,7 +17,7 @@ func Or(queries ...Query) *OrQuery {
 	}
 }
 
-func (q *OrQuery) AddSubQuery(sub Query) *OrQuery {
+func (q *OrQuery) AddSubQuery(sub Query) Query {
 	q.queries = append(q.queries, sub)
 	return q
 }
