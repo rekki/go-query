@@ -173,6 +173,39 @@ func CreateFileTerm(n int, _t string, postings []int32) Query {
 	return FileTerm(n, fn)
 
 }
+
+func termsWithFrequencies(n int32, x []int32) []int32 {
+	out := make([]int32, len(x))
+	for i, v := range x {
+		out[i] = v<<4 | n&0b1111
+	}
+	return out
+}
+
+func TestFrequency(t *testing.T) {
+	eqF(t, []float32{
+		3*computeIDF(10, 4) + 4*computeIDF(10, 3) + 5*computeIDF(10, 2),
+		3*computeIDF(10, 4) + 4*computeIDF(10, 3),
+		3 * computeIDF(10, 4),
+		3*computeIDF(10, 4) + 4*computeIDF(10, 3) + 5*computeIDF(10, 2),
+	}, queryScores(
+		Or(
+			TermTF(10, 4, "x", termsWithFrequencies(2, []int32{1, 2, 3, 4})),
+			TermTF(10, 4, "x", termsWithFrequencies(3, []int32{1, 2, 4})),
+			TermTF(10, 4, "x", termsWithFrequencies(4, []int32{1, 4}))),
+	))
+
+	eqF(t, []float32{
+		3*computeIDF(10, 4) + 4*computeIDF(10, 3) + 5*computeIDF(10, 2),
+		3*computeIDF(10, 4) + 4*computeIDF(10, 3) + 5*computeIDF(10, 2),
+	}, queryScores(
+		And(
+			TermTF(10, 4, "x", termsWithFrequencies(2, []int32{1, 2, 3, 4})),
+			TermTF(10, 4, "x", termsWithFrequencies(3, []int32{1, 2, 4})),
+			TermTF(10, 4, "x", termsWithFrequencies(4, []int32{1, 4}))),
+	))
+
+}
 func TestStrings(t *testing.T) {
 	s := Constant(1,
 		DisMax(1,
